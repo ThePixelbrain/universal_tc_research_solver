@@ -16,6 +16,12 @@
 <script>
 
 	var canvas = document.getElementById('canvas');
+	var ctx = canvas.getContext('2d');
+
+	function white_canvas() {
+		ctx.fillStyle = "white";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+	}
 
 	/* Resizing the canvas 31.25 percent of screen width (400 px if the screen is 1280 px wide) */
 	var screen_percentage = 31.25
@@ -25,7 +31,27 @@
 	/* drawing default size hex grid. Regular hexagon, "size 4" */
 	/* the whole grid should always take the maximum space */
 	/* a place in the grid should be selected on the canvas and then the aspect that is there must be a html panel below where one can search for the aspect and click to place it */
-	
+	var grid_size = 4;
+
+	/* Drawing hexagon at coords */
+	function draw_hexagon(x, y, side_len, lineWidth = 1, lineColor = '#000000', fillColor = '#FFFFFF') {
+		var triangle_height = Math.sqrt(Math.pow(side_len, 2) - Math.pow(side_len / 2, 2));
+		var points = [[x + triangle_height, y - side_len / 2], [x + triangle_height, y + side_len / 2], [x, y + side_len], [x - triangle_height, y + side_len / 2], [x - triangle_height, y - side_len / 2], [x, y - side_len]];
+		ctx.beginPath();
+		ctx.lineWidth = lineWidth;
+		ctx.strokeStyle = lineColor;
+		ctx.fillStyle = fillColor;
+		ctx.moveTo(x, y - side_len);
+		for (var i = 0; i < points.length; i++) {
+			ctx.lineTo(points[i][0], points[i][1]);
+		}
+		ctx.fill();
+		ctx.stroke();
+		ctx.closePath();
+	}
+
+	var hex_side_len = canvas.height / 2;
+	draw_hexagon(canvas.width / 2, canvas.height / 2, hex_side_len);
 
 </script>
 </html>
