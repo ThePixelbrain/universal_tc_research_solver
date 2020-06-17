@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>GTNH TC Research Solver</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<style>
+		#canvas {
+			border: solid;
+		}
+	</style>
+</head>
+<body>
+	<canvas id='canvas'></canvas>
+</body>
+<script>
+
+	var canvas = document.getElementById('canvas');
+
+	/* Resizing the canvas 31.25 percent of screen width (400 px if the screen is 1280 px wide) */
+	var screen_percentage = 31.25
+	canvas.height = screen.width / 100 * screen_percentage;
+	canvas.width = screen.width / 100 * screen_percentage
+	
+	/* drawing default size hex grid. Regular hexagon, "size 4" */
+	/* the whole grid should always take the maximum space */
+	/* a place in the grid should be selected on the canvas and then the aspect that is there must be a html panel below where one can search for the aspect and click to place it */
+	
+
+</script>
+</html>
