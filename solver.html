@@ -6,7 +6,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<style>
 		#canvas {
-			border: solid;
+			/*border: solid 1px;*/
 		}
 	</style>
 </head>
@@ -14,6 +14,13 @@
 	<canvas id='canvas'></canvas>
 </body>
 <script>
+
+	/* util functions, going into separate file later */
+
+	/* degrees to radians */
+	function to_rad(deg) {
+		return deg * Math.PI / 180;
+	}
 
 	var canvas = document.getElementById('canvas');
 	var ctx = canvas.getContext('2d');
@@ -24,9 +31,9 @@
 	}
 
 	/* Resizing the canvas 31.25 percent of screen width (400 px if the screen is 1280 px wide) */
-	var screen_percentage = 31.25
+	var screen_percentage = 31.25;
 	canvas.height = screen.width / 100 * screen_percentage;
-	canvas.width = screen.width / 100 * screen_percentage
+	canvas.width = screen.width / 100 * screen_percentage;
 	
 	/* drawing default size hex grid. Regular hexagon, "size 4" */
 	/* the whole grid should always take the maximum space */
@@ -34,14 +41,21 @@
 	var grid_size = 4;
 
 	/* Drawing hexagon at coords */
-	function draw_hexagon(x, y, side_len, lineWidth = 1, lineColor = '#000000', fillColor = '#FFFFFF') {
+	function draw_hexagon(x, y, side_len, lineWidth = 1, lineColor = '#000000', fillColor = '#FFFFFF', pointing_up = false) {
+		console.debug("side_len: " + side_len)
+		side_len -= Math.ceil(lineWidth / 2) + 1;
 		var triangle_height = Math.sqrt(Math.pow(side_len, 2) - Math.pow(side_len / 2, 2));
-		var points = [[x + triangle_height, y - side_len / 2], [x + triangle_height, y + side_len / 2], [x, y + side_len], [x - triangle_height, y + side_len / 2], [x - triangle_height, y - side_len / 2], [x, y - side_len]];
+		var points;
+		if (pointing_up) {
+			points = [[x + triangle_height, y - side_len / 2], [x + triangle_height, y + side_len / 2], [x, y + side_len], [x - triangle_height, y + side_len / 2], [x - triangle_height, y - side_len / 2], [x, y - side_len]];
+		} else {
+			points = [[x + side_len / 2, y - triangle_height], [x + side_len, y], [x + side_len / 2, y + triangle_height], [x - side_len / 2, y + triangle_height], [x - side_len, y], [x - side_len / 2, y - triangle_height]];
+		}
 		ctx.beginPath();
 		ctx.lineWidth = lineWidth;
 		ctx.strokeStyle = lineColor;
 		ctx.fillStyle = fillColor;
-		ctx.moveTo(x, y - side_len);
+		ctx.moveTo(points[5][0], points[5][1]);
 		for (var i = 0; i < points.length; i++) {
 			ctx.lineTo(points[i][0], points[i][1]);
 		}
@@ -50,8 +64,57 @@
 		ctx.closePath();
 	}
 
-	var hex_side_len = canvas.height / 2;
-	draw_hexagon(canvas.width / 2, canvas.height / 2, hex_side_len);
+
+	function draw_grid(grid_size) {
+
+		var hex_side_len = canvas.height / 2;
+		draw_hexagon(canvas.width / 2, canvas.height / 2, hex_side_len, undefined, undefined, undefined, true);
+
+		var hex_num_vertical = grid_size * 2 - 1;
+		var blank_num_vertical = hex_num_vertical - 1;
+		console.debug("hex_num_vertical: " + hex_num_vertical + ", blank_num_vertical: " + blank_num_vertical)
+		var blank_ratio = 1/10;
+		var blank_len = Math.floor(canvas.height * blank_ratio / (hex_num_vertical * blank_ratio + blank_num_vertical));
+
+		var small_hex_len_vertical = canvas.height / (hex_num_vertical + blank_num_vertical * blank_ratio);//canvas.height / hex_num_vertical - blank_len / hex_num_vertical;
+		var small_hex_len = small_hex_len_vertical / 2 / Math.cos(to_rad(30));
+
+		console.debug(`blank_len: ${blank_len}, small_hex_len_vertical: ${small_hex_len_vertical}, small_hex_len: ${small_hex_len}`);
+
+		/*for (var i = 0; i < hex_num_vertical; i++) {
+			draw_hexagon(canvas.width / 2, i * (small_hex_len_vertical + blank_len) + small_hex_len_vertical / 2, small_hex_len, 2);
+		}*/
+
+
+		/* the number of "columns" is also the number of tiles in the middle column */
+		/* the column in the middle has grid_size * 2 - 1 tiles */
+		column_num = grid_size * 2 - 1;
+		for (var i = 0; i < column_num; i++) {
+			/* number of tiles in column is grid_size + i, valid up to the middle tho.*/
+			var num_of_cells_in_column;
+			var shift_x;
+			if (i <= Math.floor(column_num / 2)) {
+				num_of_cells_in_column = grid_size + i;
+				shift_x = (column_num - num_of_cells_in_column) * (1.5 * small_hex_len + blank_len);//(column_num - num_of_cells_in_column) * (small_hex_len + blank_len);
+			} else {
+				num_of_cells_in_column = column_num - i + grid_size - 1;
+				shift_x = -(column_num - num_of_cells_in_column) * (1.5 * small_hex_len + blank_len);
+			}
+			console.debug("num of cells: " + num_of_cells_in_column);
+
+			/* each row going from the center, is shifted by half a hexagone per row */
+			var shift_y = (column_num - num_of_cells_in_column) * (small_hex_len_vertical / 2 + blank_len / 2);//(column_num - num_of_cells_in_column) * small_hex_len_vertical / 2 + blank_len / 2;
+
+
+			for (var j = 0; j < num_of_cells_in_column; j++) {
+				draw_hexagon(canvas.width / 2 - shift_x, j * (small_hex_len_vertical + blank_len) + small_hex_len_vertical / 2 + shift_y, small_hex_len, 2);
+			}
+		}
+	}
+
+	/* Data structure for the grid: one array for each column, where each "cell" */
+	/* is an object with properties like 'aspect', 'can be used', etc */
+	/* Need functions for neighbour checks */
 
 </script>
 </html>
