@@ -6,14 +6,33 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<style>
 		#canvas {
-			/*border: solid 1px;*/
+			/* border: solid 1px; */
 		}
 	</style>
 </head>
 <body>
-	<canvas id='canvas'></canvas>
+	<canvas id='canvas' onclick="handle_click(event)"></canvas>
+	<br>
+	<button onclick='mouse_selection_mode()'>Selection mode (for choosing aspects)</button>
+	<br>
+	<button onclick='mouse_barring_mode()'>Barring mode (bar the cells that aren't available)</button>
+	<br>
+	<select id="aspect_selector" onchange="assign_aspect()">
+		<option value="none">Choose aspect</option>
+		<option value="aer">Aer</option>
+		<option value="alienis">Alienis</option>
+		<option value="aqua">Aqua</option>
+	</select>
 </body>
 <script>
+	/* detect click outside of canvas */
+	document.addEventListener('click', function(event) {
+	  	var isClickInside = document.getElementById('canvas').contains(event.target) || document.getElementById('aspect_selector').contains(event.target);
+	  	if (!isClickInside && selected_cell != undefined) {
+	    	selected_cell.selected = false;
+	    	draw_grid(grid);
+	  	}
+	});
 
 	/* util functions, going into separate file later */
 
@@ -28,6 +47,80 @@
 	function white_canvas() {
 		ctx.fillStyle = "white";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
+	}
+
+	class Cell {
+		constructor(x, y, aspect, barred, side_len) {
+		    this.x = x;
+		    this.y = y;
+		    this.aspect = aspect;
+		    this.barred = barred;
+		    this.side_len = side_len;
+		    this.selected = false;
+		    this.img;
+	  	}
+	}
+
+	var mouse_mode = 'selecting';
+	var selected_cell;
+
+	function mouse_selection_mode() {
+		mouse_mode = 'selecting';
+	}
+
+	function mouse_barring_mode() {
+		mouse_mode = 'barring';
+		if (selected_cell != undefined) {
+			selected_cell.selected = false;
+		}
+	}
+
+	function handle_click(event) {
+	  	var mouse_x = event.clientX;
+	  	var mouse_y = event.clientY;
+	  	var coords = "X coords: " + mouse_x + ", Y coords: " + mouse_y;
+  		console.debug(coords);
+  		var found = false;
+  		/* loop through all cells in grid and find which one is nearest to the click */
+  		for (var i = 0; i < grid.length; i++) {
+  			for (var j = 0; j < grid[i].length; j++) {
+  				//console.debug(grid[i][j].y);
+  				console.debug(`acceptable distance: ${grid[i][j].side_len}`);
+  				distance = Math.sqrt(Math.pow(Math.abs(grid[i][j].x - mouse_x), 2) + Math.pow(Math.abs(grid[i][j].y - mouse_y), 2));
+  				if (distance <= grid[i][j].side_len) {
+  					found = true;
+  					console.debug(`found at ${parseFloat(grid[i][j].x).toFixed(2)}, ${parseFloat(grid[i][j].y).toFixed(2)} at distance ${distance}`);
+  					if (mouse_mode == 'barring') {
+  						if (grid[i][j].barred) {
+	  						grid[i][j].barred = false;
+	  					} else {
+	  						grid[i][j].selected = false;
+	  						grid[i][j].aspect = 'none';
+	  						grid[i][j].barred = true;
+	  					}
+  					}
+  					if (mouse_mode == 'selecting') {
+  						if (grid[i][j].selected) {
+	  						grid[i][j].selected = false;
+	  					} else if (!grid[i][j].barred) {
+	  						grid[i][j].selected = true;
+	  						if (selected_cell != undefined && selected_cell != grid[i][j]) {
+	  							selected_cell.selected = false;
+	  						}
+	  						selected_cell = grid[i][j];
+	  					}
+  					}
+  					break;
+  				}
+  			}
+  		}
+  		if (!found && selected_cell != undefined) {
+  			selected_cell.selected = false;
+  		}
+  		if (selected_cell != undefined && selected_cell.selected) {
+  			document.getElementById('aspect_selector').value = selected_cell.aspect;
+  		}
+  		draw_grid(grid);
 	}
 
 	/* Resizing the canvas 31.25 percent of screen width (400 px if the screen is 1280 px wide) */
@@ -65,10 +158,10 @@
 	}
 
 
-	function draw_grid(grid_size) {
+	function draw_initial_grid(grid_size) {
 
 		var hex_side_len = canvas.height / 2;
-		draw_hexagon(canvas.width / 2, canvas.height / 2, hex_side_len, undefined, undefined, undefined, true);
+		//draw_hexagon(canvas.width / 2, canvas.height / 2, hex_side_len, undefined, undefined, undefined, true);
 
 		var hex_num_vertical = grid_size * 2 - 1;
 		var blank_num_vertical = hex_num_vertical - 1;
@@ -89,7 +182,9 @@
 		/* the number of "columns" is also the number of tiles in the middle column */
 		/* the column in the middle has grid_size * 2 - 1 tiles */
 		column_num = grid_size * 2 - 1;
+		var list = [];
 		for (var i = 0; i < column_num; i++) {
+			list.push([]);
 			/* number of tiles in column is grid_size + i, valid up to the middle tho.*/
 			var num_of_cells_in_column;
 			var shift_x;
@@ -108,6 +203,62 @@
 
 			for (var j = 0; j < num_of_cells_in_column; j++) {
 				draw_hexagon(canvas.width / 2 - shift_x, j * (small_hex_len_vertical + blank_len) + small_hex_len_vertical / 2 + shift_y, small_hex_len, 2);
+				list[i].push(new Cell(canvas.width / 2 - shift_x, j * (small_hex_len_vertical + blank_len) + small_hex_len_vertical / 2 + shift_y, 'none', false, small_hex_len));
+			}
+		}
+		return list;
+	}
+
+	function draw_grid(grid) {
+		console.debug('drawing grid');
+		white_canvas();
+		for (var i = 0; i < grid.length; i++) {
+  			for (var j = 0; j < grid[i].length; j++) {
+  				if (grid[i][j].barred) {
+  					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2, undefined, '#000000');
+  					console.debug('filling');
+  				} else if (grid[i][j].selected) {
+  					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#998b67');
+  				} else {
+  					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2);
+  				}
+  				if (!grid[i][j].barred && grid[i][j].aspect != 'none') {
+  					console.debug('drawing image');
+  					ctx.drawImage(grid[i][j].img, grid[i][j].x - grid[i][j].img.width / 2, grid[i][j].y - grid[i][j].img.height / 2);
+  				}
+  			}
+  		}
+	}
+
+	/* draws a circle in the middle of each cell/tile, for debugging purposes */
+	function draw_hex_centers(grid) {
+		for (var i = 0; i < grid.length; i++) {
+  			for (var j = 0; j < grid[i].length; j++) {
+  				ctx.beginPath();
+				ctx.arc(grid[i][j].x, grid[i][j].y, 5, 0, 2 * Math.PI);
+				ctx.stroke();
+				ctx.closePath();
+  			}
+  		}
+	}
+
+	function assign_aspect() {
+		if (selected_cell != undefined) {
+			selected_cell.aspect = document.getElementById('aspect_selector').value;
+			if (selected_cell.aspect != 'none') {
+				var img = new Image();
+				img.onload = function() {
+					console.debug("loading aspect img"); 
+				}
+				img.width = selected_cell.side_len / 1.5;
+				img.src = './aspect_images/' + selected_cell.aspect + '.png';
+				selected_cell.img = img;
+				ctx.drawImage(img, selected_cell.x - img.width / 2, selected_cell.y - img.height / 2);
+				img.addEventListener("load", function () {
+					draw_grid(grid);
+				});
+			} else {
+				draw_grid(grid);
 			}
 		}
 	}
@@ -115,6 +266,8 @@
 	/* Data structure for the grid: one array for each column, where each "cell" */
 	/* is an object with properties like 'aspect', 'can be used', etc */
 	/* Need functions for neighbour checks */
+
+	var grid = draw_initial_grid(3);
 
 </script>
 </html>
