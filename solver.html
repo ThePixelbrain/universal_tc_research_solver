@@ -18,11 +18,60 @@
 	<button onclick='mouse_barring_mode()'>Barring mode (bar the cells that aren't available)</button>
 	<br>
 	<select id="aspect_selector" onchange="assign_aspect()">
-		<option value="none">Choose aspect</option>
+		<option value="none">Aspect - none</option>
 		<option value="aer">Aer</option>
 		<option value="alienis">Alienis</option>
 		<option value="aqua">Aqua</option>
+		<option value="arbor">Arbor</option>
+		<option value="auram">Auram</option>
+		<option value="bestia">Bestia</option>
+		<option value="cognitio">Cognitio</option>
+		<option value="corpus">Corpus</option>
+		<option value="exanimis">Exanimis</option>
+		<option value="fabrico">Fabrico</option>
+		<option value="fames">Fames</option>
+		<option value="gelum">Gelum</option>
+		<option value="herba">Herba</option>
+		<option value="humanus">Humanus</option>
+		<option value="ignis">Ignis</option>
+		<option value="instrumentum">Instrumentum</option>
+		<option value="iter">Iter</option>
+		<option value="limus">Limus</option>
+		<option value="lucrum">Lucrum</option>
+		<option value="lux">Lux</option>
+		<option value="machina">Machina</option>
+		<option value="messis">Messis</option>
+		<option value="metallum">Metallum</option>
+		<option value="meto">Meto</option>
+		<option value="mortuus">Mortuus</option>
+		<option value="motus">Motus</option>
+		<option value="ordo">Ordo</option>
+		<option value="pannus">Pannus</option>
+		<option value="perditio">Perditio</option>
+		<option value="perfodio">Perfodio</option>
+		<option value="permutatio">Permutatio</option>
+		<option value="potentia">Potentia</option>
+		<option value="praecantatio">Praecantatio</option>
+		<option value="sano">Sano</option>
+		<option value="sensus">Sensus</option>
+		<option value="spiritus">Spiritus</option>
+		<option value="telum">Telum</option>
+		<option value="tempestas">Tempestas</option>
+		<option value="tenebrae">Tenebrae</option>
+		<option value="terra">Terra</option>
+		<option value="tutamen">Tutamen</option>
+		<option value="vacuos">Vacuos</option>
+		<option value="venenum">Venenum</option>
+		<option value="victus">Victus</option>
+		<option value="vinculum">Vinculum</option>
+		<option value="vitium">Vitium</option>
+		<option value="vitreus">Vitreus</option>
+		<option value="volatus">Volatus</option>
 	</select>
+	<br>
+	<button onclick="calculate()">Calculate</button>
+	<br><br>
+	<button onclick="preset()">preset (debug)</button>
 </body>
 <script>
 	/* detect click outside of canvas */
@@ -30,6 +79,7 @@
 	  	var isClickInside = document.getElementById('canvas').contains(event.target) || document.getElementById('aspect_selector').contains(event.target);
 	  	if (!isClickInside && selected_cell != undefined) {
 	    	selected_cell.selected = false;
+	    	selected_cell = undefined;
 	    	draw_grid(grid);
 	  	}
 	});
@@ -72,6 +122,7 @@
 		mouse_mode = 'barring';
 		if (selected_cell != undefined) {
 			selected_cell.selected = false;
+			selected_cell = undefined;
 		}
 	}
 
@@ -106,6 +157,7 @@
 	  						grid[i][j].selected = true;
 	  						if (selected_cell != undefined && selected_cell != grid[i][j]) {
 	  							selected_cell.selected = false;
+	  							selected_cell = undefined;
 	  						}
 	  						selected_cell = grid[i][j];
 	  					}
@@ -116,6 +168,7 @@
   		}
   		if (!found && selected_cell != undefined) {
   			selected_cell.selected = false;
+  			selected_cell = undefined;
   		}
   		if (selected_cell != undefined && selected_cell.selected) {
   			document.getElementById('aspect_selector').value = selected_cell.aspect;
@@ -160,7 +213,7 @@
 
 	function draw_initial_grid(grid_size) {
 
-		var hex_side_len = canvas.height / 2;
+		var hex_side_len = canvas.height / 2 - 1;
 		//draw_hexagon(canvas.width / 2, canvas.height / 2, hex_side_len, undefined, undefined, undefined, true);
 
 		var hex_num_vertical = grid_size * 2 - 1;
@@ -218,13 +271,14 @@
   					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2, undefined, '#000000');
   					console.debug('filling');
   				} else if (grid[i][j].selected) {
-  					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#998b67');
+  					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#d8faff');
   				} else {
   					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2);
   				}
   				if (!grid[i][j].barred && grid[i][j].aspect != 'none') {
   					console.debug('drawing image');
-  					ctx.drawImage(grid[i][j].img, grid[i][j].x - grid[i][j].img.width / 2, grid[i][j].y - grid[i][j].img.height / 2);
+  					img_size = grid[i][j].side_len * 1.2;
+  					ctx.drawImage(grid[i][j].img, grid[i][j].x - img_size / 2, grid[i][j].y - img_size / 2, img_size, img_size);
   				}
   			}
   		}
@@ -250,10 +304,9 @@
 				img.onload = function() {
 					console.debug("loading aspect img"); 
 				}
-				img.width = selected_cell.side_len / 1.5;
-				img.src = './aspect_images/' + selected_cell.aspect + '.png';
+				img_size = selected_cell.side_len / 1.5;
+				img.src = './hq_aspect_images_black/thaumcraft/' + selected_cell.aspect + '.png';
 				selected_cell.img = img;
-				ctx.drawImage(img, selected_cell.x - img.width / 2, selected_cell.y - img.height / 2);
 				img.addEventListener("load", function () {
 					draw_grid(grid);
 				});
@@ -262,6 +315,117 @@
 			}
 		}
 	}
+
+	function preset() {
+		/* base */
+		for (var i = 0; i < grid.length; i++) {
+  			for (var j = 0; j < grid[i].length; j++) {
+  				grid[i][j].aspect = 'none';
+  			}
+  		}
+		grid[0][2].aspect = 'instrumentum';
+		var img1 = new Image();
+		img1.src = './hq_aspect_images_black/thaumcraft/' + grid[0][2].aspect + '.png';
+		grid[0][2].img = img1;
+
+		var img2 = new Image();
+		grid[2][0].aspect = 'permutatio';
+		img2.src = './hq_aspect_images_black/thaumcraft/' + grid[2][0].aspect + '.png';
+		grid[2][0].img = img2;
+
+		grid[4][2].aspect = 'metallum';
+		var img3 = new Image();
+		img3.src = './hq_aspect_images_black/thaumcraft/' + grid[4][2].aspect + '.png';
+		grid[4][2].img = img3;
+		/*img3.addEventListener("load", function () {
+			draw_grid(grid);
+		});*/
+
+		/* solution */
+		var img4 = new Image();
+		grid[1][1].aspect = 'vitreus';
+		img4.src = './hq_aspect_images_black/thaumcraft/' + grid[1][1].aspect + '.png';
+		grid[1][1].img = img4;
+
+		var img5 = new Image();
+		grid[1][2].aspect = 'ordo';
+		img5.src = './hq_aspect_images_black/thaumcraft/' + grid[1][2].aspect + '.png';
+		grid[1][2].img = img5;
+
+		var img6 = new Image();
+		grid[2][1].aspect = 'ordo';
+		img6.src = './hq_aspect_images_black/thaumcraft/' + grid[2][1].aspect + '.png';
+		grid[2][1].img = img6;
+
+		var img7 = new Image();
+		grid[2][2].aspect = 'ordo';
+		img7.src = './hq_aspect_images_black/thaumcraft/' + grid[2][2].aspect + '.png';
+		grid[2][2].img = img7;
+
+		var img8 = new Image();
+		grid[3][1].aspect = 'vitreus';
+		img8.src = './hq_aspect_images_black/thaumcraft/' + grid[3][1].aspect + '.png';
+		grid[3][1].img = img8;
+
+		var img9 = new Image();
+		grid[3][2].aspect = 'vitreus';
+		img9.src = './hq_aspect_images_black/thaumcraft/' + grid[3][2].aspect + '.png';
+		grid[3][2].img = img9;
+		img9.addEventListener("load", function () {
+			draw_grid(grid);
+		});
+	}
+
+	var aspect_table = {
+		'aer':['primal'],
+		'alienis':['vacuos','tenebrae'],
+		'aqua':['primal'],
+		'arbor':['aer','herba'],
+		'auram':['aer','praecantatio'],
+		'bestia':['motus','victus'],
+		'cognitio':['ignis','spiritus'],
+		'corpus':['bestia','mortuus'],
+		'exanimis':['motus','mortuus'],
+		'fabrico':['humanus','instrumentum'],
+		'fames':['vacuos','victus'],
+		'gelum':['ignis','perditio'],
+		'herba':['terra','victus'],
+		'humanus':['bestia','cognitio'],
+		'ignis':['primal'],
+		'instrumentum':['ordo','humanus'],
+		'iter':['terra','motus'],
+		'limus':['aqua','victus'],
+		'lucrum':['fames','humanus'],
+		'lux':['aer','ignis'],
+		'machina':['motus','instrumentum'],
+		'messis':['herba','humanus'],
+		'metallum':['terra','vitreus'],
+		'meto':['instrumentum','messis'],
+		'mortuus':['perditio','victus'],
+		'motus':['aer','ordo'],
+		'ordo':['primal'],
+		'pannus':['bestia','instrumentum'],
+		'perditio':['primal'],
+		'perfodio':['terra','humanus'],
+		'permutatio':['ordo','perditio'],
+		'potentia':['ignis','ordo'],
+		'praecantatio':['potentia','vacuos'],
+		'sano':['ordo','victus'],
+		'sensus':['aer','spiritus'],
+		'spiritus':['victus','mortuus'],
+		'telum':['ignis','instrumentum'],
+		'tempestas':['aer','aqua'],
+		'tenebrae':['lux','vacuos'],
+		'terra':['primal'],
+		'tutamen':['terra','instrumentum'],
+		'vacuos':['aer','perditio'],
+		'venenum':['aqua','perditio'],
+		'victus':['aqua','terra'],
+		'vinculum':['perditio','motus'],
+		'vitium':['perditio','praecantatio'],
+		'vitreus':['ordo','terra'],
+		'volatus':['aer','motus']
+	};
 
 	/* Data structure for the grid: one array for each column, where each "cell" */
 	/* is an object with properties like 'aspect', 'can be used', etc */

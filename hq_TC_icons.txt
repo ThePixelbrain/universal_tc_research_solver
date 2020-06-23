@@ -1,0 +1,61 @@
+Thaumcraft 4:
+aer: https://game-icons.net/1x1/lorc/gold-shell.html
+alienis: https://game-icons.net/1x1/lorc/orbital.html
+aqua: https://game-icons.net/1x1/lorc/at-sea.html
+arbor: https://game-icons.net/1x1/lorc/oak.html
+auram: https://game-icons.net/1x1/lorc/sun.html
+bestia: https://game-icons.net/1x1/lorc/wolf-head.html
+cognitio: https://game-icons.net/1x1/lorc/brain.html
+corpus: https://game-icons.net/1x1/lorc/meat.html
+exanimis: https://game-icons.net/1x1/lorc/death-zone.html
+fabrico: https://game-icons.net/1x1/lorc/hammer-nails.html
+fames: https://game-icons.net/1x1/lorc/mouth-watering.html
+gelum: https://game-icons.net/1x1/lorc/ice-cube.html
+herba: https://game-icons.net/1x1/lorc/three-leaves.html
+humanus: https://game-icons.net/1x1/lorc/two-shadows.html
+ignis (actually doesn't exist with circle): https://game-icons.net/1x1/lorc/small-fire.html
+instrumentum: https://game-icons.net/1x1/lorc/dig-dug.html
+iter: https://game-icons.net/1x1/lorc/journey.html
+limus: https://game-icons.net/1x1/lorc/acid-blob.html
+lucrum: https://game-icons.net/1x1/lorc/grab.html
+lux: https://game-icons.net/1x1/lorc/candle-light.html
+machina: https://game-icons.net/1x1/lorc/gears.html
+messis: https://game-icons.net/1x1/lorc/wheat.html
+metallum: https://game-icons.net/1x1/lorc/metal-bar.html
+meto: https://game-icons.net/1x1/delapouite/sickle.html
+mortuus: https://game-icons.net/1x1/lorc/pirate-grave.html
+motus: https://game-icons.net/1x1/lorc/dodging.html
+ordo (actually doesn't exist with circle): https://game-icons.net/1x1/lorc/moebius-triangle.html
+pannus: https://game-icons.net/1x1/lorc/bandage-roll.html
+perditio (actually doesn't exist with circle): https://game-icons.net/1x1/lorc/cracked-disc.html
+perfodio: https://game-icons.net/1x1/lorc/mining.html
+permutatio: https://game-icons.net/1x1/lorc/cycle.html
+potentia: https://game-icons.net/1x1/lorc/thor-fist.html
+praecantatio: https://game-icons.net/1x1/lorc/fairy-wand.html
+sano: https://game-icons.net/1x1/lorc/heart-bottle.html
+sensus: https://game-icons.net/1x1/lorc/owl.html
+spiritus: https://game-icons.net/1x1/lorc/spectre.html
+telum: https://game-icons.net/1x1/lorc/plain-dagger.html
+tempestas: https://game-icons.net/1x1/lorc/lightning-storm.html
+tenebrae: https://game-icons.net/1x1/lorc/eclipse.html
+terra: https://game-icons.net/1x1/lorc/mountains.html
+tutamen: https://game-icons.net/1x1/lorc/breastplate.html
+vacuos (non existing): https://game-icons.net/1x1/delapouite/circle.html
+venenum: https://game-icons.net/1x1/lorc/poison-bottle.html
+victus: https://game-icons.net/1x1/lorc/shining-heart.html
+vinculum: https://game-icons.net/1x1/lorc/wolf-trap.html
+vitium: https://game-icons.net/1x1/lorc/infested-mass.html
+vitreus: https://game-icons.net/1x1/lorc/emerald.html
+volatus: https://game-icons.net/1x1/lorc/feather.html
+----------
+Avaritia:
+terminus: https://game-icons.net/1x1/lorc/burning-meteor.html
+-----------
+Forbidden magic:
+luxuria: https://game-icons.net/1x1/lorc/tentacle-strike.html
+infernus: https://game-icons.net/1x1/lorc/evil-fork.html
+gula: https://game-icons.net/1x1/lorc/gluttonous-smile.html
+desidia: https://game-icons.net/1x1/lorc/sleepy.html
+ira: https://game-icons.net/1x1/lorc/ifrit.html
+invidia: https://game-icons.net/1x1/lorc/crystal-eye.html
+superbia: https://game-icons.net/1x1/lorc/muscle-up.html
