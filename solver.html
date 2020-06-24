@@ -433,5 +433,98 @@
 
 	var grid = draw_initial_grid(3);
 
+	function inArray(haystack, needle){
+		for(item in haystack){
+			if (haystack[item][0] == needle[0] && haystack[item][1] == needle[1]){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function can_connect(x1, y1, x2, y2) {
+		if (grid[x2][y2].aspect == 'none') {
+			return false;
+		}
+		if (aspect_table[grid[x1][y1].aspect].includes(grid[x2][y2].aspect) || aspect_table[grid[x2][y2].aspect].includes(grid[x1][y1].aspect)) {
+			return true;
+		}
+		return false;
+	}
+
+	function cell_exists(x, y) {
+		try {
+			var i = grid[x][y].aspect;
+		} catch(e) {
+			return false;
+		}
+		if (i != undefined) {
+			return true;
+		}
+		return false;
+	}
+
+	function paint_tiles(coord_list) {
+		var real_coords = [];
+		for (var i = 0; i < coord_list.length; i++) {
+				real_coords.push([grid[coord_list[i][0]][coord_list[i][1]].x, grid[coord_list[i][0]][coord_list[i][1]].y]);
+		}
+		for (var i = 0; i < real_coords.length; i++) {
+			draw_hexagon(real_coords[i][0], real_coords[i][1], grid[0][0].side_len, undefined, undefined, '#000000');
+		}
+	}
+
+	function tile_neighbors(x, y, debug = false) {
+		var left_coords = [[x, y - 1], [x + 1, y], [x + 1, y + 1], [x, y + 1], [x - 1, y], [x - 1, y - 1]];
+		var middle_coords = [[x, y - 1], [x + 1, y - 1], [x + 1, y], [x, y + 1], [x - 1, y], [x - 1, y - 1]];
+		var right_coords = [[x, y - 1], [x + 1, y - 1], [x + 1, y], [x, y + 1], [x - 1, y + 1], [x - 1, y]];
+		if (x == Math.floor(grid.length / 2)) {
+			for (var i = 0; i < middle_coords.length; i++) {
+				if (!cell_exists(middle_coords[i][0], middle_coords[i][1]) || grid[middle_coords[i][0]][middle_coords[i][1]].aspect == 'none' || !(aspect_table[grid[x][y].aspect].includes(grid[middle_coords[i][0]][middle_coords[i][1]].aspect) || aspect_table[grid[middle_coords[i][0]][middle_coords[i][1]].aspect].includes(grid[x][y].aspect))) {
+					middle_coords.splice(i, 1);
+					i--;
+				}
+			}
+			return middle_coords;
+		} else if (x < Math.floor(grid.length / 2)) {
+			for (var i = 0; i < left_coords.length; i++) {
+				if (!cell_exists(left_coords[i][0], left_coords[i][1]) || grid[left_coords[i][0]][left_coords[i][1]].aspect == 'none' || !(aspect_table[grid[x][y].aspect].includes(grid[left_coords[i][0]][left_coords[i][1]].aspect) || aspect_table[grid[left_coords[i][0]][left_coords[i][1]].aspect].includes(grid[x][y].aspect))) {
+					left_coords.splice(i, 1);
+					i--;
+				}
+			}
+			return left_coords;
+		}
+		for (var i = 0; i < right_coords.length; i++) {
+				if (!cell_exists(right_coords[i][0], right_coords[i][1]) || grid[right_coords[i][0]][right_coords[i][1]].aspect == 'none' || !(aspect_table[grid[x][y].aspect].includes(grid[right_coords[i][0]][right_coords[i][1]].aspect) || aspect_table[grid[right_coords[i][0]][right_coords[i][1]].aspect].includes(grid[x][y].aspect))) {
+					right_coords.splice(i, 1);
+					i--;
+				}
+			}
+		return right_coords;
+	}
+
+	/* This function only considers cell neighbours that can be connected */
+	function neighbour_chain(x, y, cell_list=null) {
+		//console.log(`x: ${x}, y: ${y}, cell_list: ${cell_list}`);
+		if (cell_list == null) {
+			cell_list = [];
+		}
+		if (grid[x][y].aspect != 'none' && !inArray(cell_list, [x, y])) {
+			cell_list.push([x, y]);
+			var neighbours = tile_neighbors(x, y);
+			//console.log(`neighbours: ${neighbours}`);
+			for (var i = 0; i < neighbours.length; i++) {
+				//console.log(`i: ${i}, neighbor len: ${neighbours.length}`);
+				neighbour_chain(neighbours[i][0], neighbours[i][1], cell_list);
+			}
+		}
+		return cell_list;
+	}
+
+	function check_continuity(grid) {
+		
+	}
+
 </script>
 </html>
