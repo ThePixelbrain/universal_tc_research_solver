@@ -523,8 +523,25 @@
 	}
 
 	function check_continuity(grid) {
-		
+		var starting_cell;
+		var aspect_cell_counter = 0;
+		for (var i = 0; i < grid.length; i++) {
+  			for (var j = 0; j < grid[i].length; j++) {
+  				if (grid[i][j].aspect != 'none') {
+  					if (starting_cell == undefined) {
+  						starting_cell = [i, j];
+  					}
+  					aspect_cell_counter ++;
+  				}
+  			}
+  		}
+  		if (neighbour_chain(starting_cell[0], starting_cell[1]).length != aspect_cell_counter) {
+  			return false;
+  		}
+  		return true;
 	}
+
+	
 
 </script>
 </html>
