@@ -8,6 +8,9 @@
 		#canvas {
 			/* border: solid 1px; */
 		}
+		body {
+			background-color: #232327;
+		}
 	</style>
 </head>
 <body>
@@ -69,7 +72,7 @@
 		<option value="volatus">Volatus</option>
 	</select>
 	<br>
-	<button onclick="calculate()">Calculate</button>
+	<button onclick="solve()">Solve</button>
 	<br><br>
 	<button onclick="preset()">preset (debug)</button>
 </body>
@@ -84,11 +87,31 @@
 	  	}
 	});
 
+	var image_cache = {};
+
 	/* util functions, going into separate file later */
 
 	/* degrees to radians */
 	function to_rad(deg) {
 		return deg * Math.PI / 180;
+	}
+
+	/* distance between two points */
+	function get_distance(x1, y1, x2, y2) {
+		return Math.sqrt(Math.abs(x1 - x2) * Math.abs(x1 - x2) + Math.abs(y1 - y2) * Math.abs(y1 - y2));
+	}
+
+	/* object handling */
+	function keylen(obj) {
+		return Object.keys(obj).length;
+	}
+
+	function keyAtIndex(obj, index) {
+		return Object.keys(obj)[index];
+	}
+
+	function elemAtIndex(obj, index) {
+		return obj[Object.keys(obj)[index]];
 	}
 
 	var canvas = document.getElementById('canvas');
@@ -100,7 +123,7 @@
 	}
 
 	class Cell {
-		constructor(x, y, aspect, barred, side_len) {
+		constructor(x, y, aspect, barred, side_len, id, array_x, array_y) {
 		    this.x = x;
 		    this.y = y;
 		    this.aspect = aspect;
@@ -108,7 +131,21 @@
 		    this.side_len = side_len;
 		    this.selected = false;
 		    this.img;
+		    this.base = false;
+		    this.id = id;
+		    this.distance_dict = {};
+		    this.array_x = array_x;
+		    this.array_y = array_y;
 	  	}
+	}
+
+	class State {
+		constructor(grid) {
+			this.grid = grid;
+			this.impossible_closest_cells = [];
+			this.last_move = null;
+			this.last_cell = null;
+		}
 	}
 
 	var mouse_mode = 'selecting';
@@ -236,6 +273,7 @@
 		/* the column in the middle has grid_size * 2 - 1 tiles */
 		column_num = grid_size * 2 - 1;
 		var list = [];
+		var id = 0;
 		for (var i = 0; i < column_num; i++) {
 			list.push([]);
 			/* number of tiles in column is grid_size + i, valid up to the middle tho.*/
@@ -256,7 +294,8 @@
 
 			for (var j = 0; j < num_of_cells_in_column; j++) {
 				draw_hexagon(canvas.width / 2 - shift_x, j * (small_hex_len_vertical + blank_len) + small_hex_len_vertical / 2 + shift_y, small_hex_len, 2);
-				list[i].push(new Cell(canvas.width / 2 - shift_x, j * (small_hex_len_vertical + blank_len) + small_hex_len_vertical / 2 + shift_y, 'none', false, small_hex_len));
+				list[i].push(new Cell(canvas.width / 2 - shift_x, j * (small_hex_len_vertical + blank_len) + small_hex_len_vertical / 2 + shift_y, 'none', false, small_hex_len, id, i, j));
+				id++;
 			}
 		}
 		return list;
@@ -278,7 +317,8 @@
   				if (!grid[i][j].barred && grid[i][j].aspect != 'none') {
   					console.debug('drawing image');
   					img_size = grid[i][j].side_len * 1.2;
-  					ctx.drawImage(grid[i][j].img, grid[i][j].x - img_size / 2, grid[i][j].y - img_size / 2, img_size, img_size);
+  					//ctx.drawImage(grid[i][j].img, grid[i][j].x - img_size / 2, grid[i][j].y - img_size / 2, img_size, img_size);
+  					ctx.drawImage(image_cache[grid[i][j].aspect], grid[i][j].x - img_size / 2, grid[i][j].y - img_size / 2, img_size, img_size);
   				}
   			}
   		}
@@ -306,7 +346,8 @@
 				}
 				img_size = selected_cell.side_len / 1.5;
 				img.src = './hq_aspect_images_black/thaumcraft/' + selected_cell.aspect + '.png';
-				selected_cell.img = img;
+				image_cache[selected_cell.aspect] = img;
+				selected_cell.img = image_cache[selected_cell.aspect];
 				img.addEventListener("load", function () {
 					draw_grid(grid);
 				});
@@ -326,23 +367,26 @@
 		grid[0][2].aspect = 'instrumentum';
 		var img1 = new Image();
 		img1.src = './hq_aspect_images_black/thaumcraft/' + grid[0][2].aspect + '.png';
-		grid[0][2].img = img1;
+		image_cache['instrumentum'] = img1;
+		grid[0][2].img = image_cache['instrumentum'];
 
 		var img2 = new Image();
 		grid[2][0].aspect = 'permutatio';
 		img2.src = './hq_aspect_images_black/thaumcraft/' + grid[2][0].aspect + '.png';
-		grid[2][0].img = img2;
+		image_cache['permutatio'] = img2;
+		grid[2][0].img = image_cache['permutatio'];
 
 		grid[4][2].aspect = 'metallum';
 		var img3 = new Image();
 		img3.src = './hq_aspect_images_black/thaumcraft/' + grid[4][2].aspect + '.png';
-		grid[4][2].img = img3;
-		/*img3.addEventListener("load", function () {
+		image_cache['metallum'] = img3;
+		grid[4][2].img = image_cache['metallum'];
+		img3.addEventListener("load", function () {
 			draw_grid(grid);
-		});*/
+		});
 
 		/* solution */
-		var img4 = new Image();
+		/*var img4 = new Image();
 		grid[1][1].aspect = 'vitreus';
 		img4.src = './hq_aspect_images_black/thaumcraft/' + grid[1][1].aspect + '.png';
 		grid[1][1].img = img4;
@@ -373,7 +417,7 @@
 		grid[3][2].img = img9;
 		img9.addEventListener("load", function () {
 			draw_grid(grid);
-		});
+		});*/
 	}
 
 	var aspect_table = {
@@ -442,6 +486,24 @@
 		return false;
 	}
 
+	function deepcopy(object) {
+		if (Array.isArray(object)) {
+			var copy = [];
+		} else if (typeof object === "object") {
+			var copy = {};
+		} else {
+			var copy = [];
+		}
+		for (index in object) {
+			if (Array.isArray(object[index]) || typeof object[index] === "object") {
+				copy[index] = deepcopy(object[index]);
+			} else {
+				copy[index] = object[index];
+			}
+		}
+		return copy;
+	}
+
 	function can_connect(x1, y1, x2, y2) {
 		if (grid[x2][y2].aspect == 'none') {
 			return false;
@@ -504,6 +566,36 @@
 		return right_coords;
 	}
 
+	function tile_neighbors_wo_aspects(x, y, grid) {
+		var left_coords = [[x, y - 1], [x + 1, y], [x + 1, y + 1], [x, y + 1], [x - 1, y], [x - 1, y - 1]];
+		var middle_coords = [[x, y - 1], [x + 1, y - 1], [x + 1, y], [x, y + 1], [x - 1, y], [x - 1, y - 1]];
+		var right_coords = [[x, y - 1], [x + 1, y - 1], [x + 1, y], [x, y + 1], [x - 1, y + 1], [x - 1, y]];
+		if (x == Math.floor(grid.length / 2)) {
+			for (var i = 0; i < middle_coords.length; i++) {
+				if (!cell_exists(middle_coords[i][0], middle_coords[i][1])) {
+					middle_coords.splice(i, 1);
+					i--;
+				}
+			}
+			return middle_coords;
+		} else if (x < Math.floor(grid.length / 2)) {
+			for (var i = 0; i < left_coords.length; i++) {
+				if (!cell_exists(left_coords[i][0], left_coords[i][1])) {
+					left_coords.splice(i, 1);
+					i--;
+				}
+			}
+			return left_coords;
+		}
+		for (var i = 0; i < right_coords.length; i++) {
+				if (!cell_exists(right_coords[i][0], right_coords[i][1])) {
+					right_coords.splice(i, 1);
+					i--;
+				}
+			}
+		return right_coords;
+	}
+
 	/* This function only considers cell neighbours that can be connected */
 	function neighbour_chain(x, y, cell_list=null) {
 		//console.log(`x: ${x}, y: ${y}, cell_list: ${cell_list}`);
@@ -541,7 +633,269 @@
   		return true;
 	}
 
-	
+	function get_cell_by_id(id, grid) {
+		for (var i = 0; i < grid.length; i++) {
+  			for (var j = 0; j < grid[i].length; j++) {
+  				if (grid[i][j].id == id) {
+  					return grid[i][j];
+  				}
+  			}
+  		}
+	}
+
+	function closest_cells(grid) {
+		/* basically take every cell and get all distances to all other cells */
+		/* uses precalculated values */
+		/* ignores cells that form a continuity */
+		var current_closest_pair = [];
+		for (var i = 0; i < grid.length; i++) {
+  			for (var j = 0; j < grid[i].length; j++) {
+  				/* check that the cell has an aspect */
+  				if (grid[i][j].aspect != 'none') {
+  					var current_neighbour_chain = neighbour_chain(i, j);
+  					for (var k = 0; k < keylen(grid[i][j].distance_dict); k++) {
+  						/* check if the cell isn't already connected */
+  						var in_neighbour_chain = false;
+  						for (var l = 0; l < current_neighbour_chain.length; l++) {
+  							if (grid[current_neighbour_chain[l][0]][current_neighbour_chain[l][1]].id == parseInt(keyAtIndex(grid[i][j].distance_dict, k))) {
+  								in_neighbour_chain = true;
+  							}
+  						}
+  						if (!in_neighbour_chain && get_cell_by_id(parseInt(keyAtIndex(grid[i][j].distance_dict, k)), grid).aspect != 'none') {
+  							if (current_closest_pair.length == 0) {
+  								current_closest_pair = [grid[i][j].id, parseInt(keyAtIndex(grid[i][j].distance_dict, k))];
+  							} else {
+  								var current_distance = get_distance(get_cell_by_id(current_closest_pair[0], grid).x, get_cell_by_id(current_closest_pair[0], grid).y, get_cell_by_id(current_closest_pair[1], grid).x, get_cell_by_id(current_closest_pair[1], grid).y);
+  								var potential_distance = get_distance(grid[i][j].x, grid[i][j].y, get_cell_by_id(parseInt(keyAtIndex(grid[i][j].distance_dict, k)), grid).x, get_cell_by_id(parseInt(keyAtIndex(grid[i][j].distance_dict, k)), grid).y);
+  								if (potential_distance < current_distance) {
+  									current_closest_pair = [grid[i][j].id, parseInt(keyAtIndex(grid[i][j].distance_dict, k))];
+  								}
+  							}
+  						}
+  					}
+  				}
+  			}
+  		}
+  		return current_closest_pair;
+	}
+
+	function precalculate_cell_distances() {
+		console.log("precalculating distances: start");
+		for (var i = 0; i < grid.length; i++) {
+  			for (var j = 0; j < grid[i].length; j++) {
+  				for (var k = 0; k < grid.length; k++) {
+		  			for (var l = 0; l < grid[k].length; l++) {
+		  				if (!(i == k && j == l)) {
+		  					grid[i][j].distance_dict[grid[k][l].id] = get_distance(grid[i][j].x, grid[i][j].y, grid[k][l].x, grid[k][l].y);
+		  				}
+		  			}
+		  		}
+  			}
+  		}
+  		console.log("precalculating distances: done");
+	}
+
+	function closest_neighbor_to_cell(id1, id2, grid) {
+		var cell1 = get_cell_by_id(id1, grid);
+		var cell2 = get_cell_by_id(id2, grid);
+		var temp_neighbors = tile_neighbors_wo_aspects(cell1.array_x, cell1.array_y, grid);
+		var temp_closest_neighbour = null;
+		var temp_closest_distance = null;
+		for (var i = 0; i < temp_neighbors.length; i++) {
+			if (grid[temp_neighbors[i][0]][temp_neighbors[i][1]].aspect == 'none' && !grid[temp_neighbors[i][0]][temp_neighbors[i][1]].barred) {
+				if (temp_closest_neighbour == null) {
+					temp_closest_neighbour = grid[temp_neighbors[i][0]][temp_neighbors[i][1]].id;
+					temp_closest_distance = grid[temp_neighbors[i][0]][temp_neighbors[i][1]].distance_dict[id2];
+				} else if (grid[temp_neighbors[i][0]][temp_neighbors[i][1]].distance_dict[id2] < temp_closest_distance) {
+					temp_closest_neighbour = grid[temp_neighbors[i][0]][temp_neighbors[i][1]].id;
+				}
+			}
+		}
+		return temp_closest_neighbour;
+	}
+
+	function complexity(aspect, counter=null) {
+		if (counter == null) {
+			counter = 0;
+		}
+		counter++;
+		if (aspect_table[aspect].length == 1) {
+			return 0;
+		} else {
+			counter += Math.max(complexity(aspect_table[aspect][0]), complexity(aspect_table[aspect][1]));
+		}
+		return counter;
+	}
+
+	function contains(container, contained) {
+		if (aspect_table[container].length == 1) {
+			if (aspect_table[container][0] == contained) {
+				return 0;
+			}
+		} else {
+			if (aspect_table[container][0] == contained) {
+				return 0;
+			}
+			if (aspect_table[container][1] == contained) {
+				return 1;
+			}
+		}
+		return -1;
+	}
+
+	function best_aspect(starting_cell_id, target_cell_id, neighbor_cell_id, grid) {
+		var starting_cell = get_cell_by_id(starting_cell_id, grid);
+		var target_cell = get_cell_by_id(target_cell_id, grid);
+		var neighbor_cell = get_cell_by_id(neighbor_cell_id, grid);
+
+		var least_complex_aspect = null;
+		var current_complexity = null;
+
+		/* small complexity < being linked to target cell */
+		if (aspect_table[starting_cell.aspect].length == 1) {
+			/* primal aspect, must choose compound that includes it */
+			/* trying to have smallest complexity */
+			/* and then search again to see i we can get something directly related */
+			for (var i = 0; i < keylen(aspect_table); i++) {
+				if (least_complex_aspect == null) {
+					if (contains(keyAtIndex(aspect_table, i), starting_cell.aspect) > -1) {
+						least_complex_aspect = keyAtIndex(aspect_table, i); //aspect_table[starting_cell.aspect][contains(keyAtIndex(aspect_table, i), starting_cell.aspect)];
+						current_complexity = complexity(least_complex_aspect);
+					}
+				} else {
+					if (contains(keyAtIndex(aspect_table, i), starting_cell.aspect) > -1) {
+						var temp_aspect = keyAtIndex(aspect_table, i);//aspect_table[starting_cell.aspect][contains(keyAtIndex(aspect_table, i), starting_cell.aspect)];
+						if (current_complexity > complexity(temp_aspect)) {
+							least_complex_aspect = keyAtIndex(aspect_table, i);//aspect_table[starting_cell.aspect][contains(keyAtIndex(aspect_table, i), starting_cell.aspect)];
+							current_complexity = complexity(least_complex_aspect);
+						}
+					}
+				}
+			}
+			/* trying to match a bit the target aspect */
+			for (var i = 0; i < keylen(aspect_table); i++) {
+				if (contains(keyAtIndex(aspect_table, i), starting_cell.aspect) > -1) {
+					if ((current_complexity == complexity(temp_aspect) || Math.abs(current_complexity - complexity(temp_aspect)) == 1) && (contains(temp_aspect, target_cell.aspect) || contains(target_cell.aspect, temp_aspect))) {
+						least_complex_aspect = temp_aspect;
+						current_complexity = complexity(temp_aspect);
+					}
+				}
+			}
+		} else if (aspect_table[starting_cell.aspect].length == 2) {
+			/* compound aspect */
+			for (var i = 0; i < keylen(aspect_table); i++) {
+				if (least_complex_aspect == null) {
+					if (contains(starting_cell.aspect, keyAtIndex(aspect_table, i)) > -1) {
+						least_complex_aspect = keyAtIndex(aspect_table, i); //aspect_table[starting_cell.aspect][contains(keyAtIndex(aspect_table, i), starting_cell.aspect)];
+						current_complexity = complexity(least_complex_aspect);
+					}
+				} else {
+					if (contains(starting_cell.aspect, keyAtIndex(aspect_table, i)) > -1) {
+						var temp_aspect = keyAtIndex(aspect_table, i);//aspect_table[starting_cell.aspect][contains(keyAtIndex(aspect_table, i), starting_cell.aspect)];
+						if (current_complexity > complexity(temp_aspect)) {
+							least_complex_aspect = keyAtIndex(aspect_table, i);//aspect_table[starting_cell.aspect][contains(keyAtIndex(aspect_table, i), starting_cell.aspect)];
+							current_complexity = complexity(least_complex_aspect);
+						}
+					}
+				}
+			}
+			for (var i = 0; i < keylen(aspect_table); i++) {
+				if (contains(starting_cell.aspect, keyAtIndex(aspect_table, i)) > -1) {
+					if ((current_complexity == complexity(temp_aspect) || Math.abs(current_complexity - complexity(temp_aspect)) == 1) && (contains(temp_aspect, target_cell.aspect) || contains(target_cell.aspect, temp_aspect))) {
+						least_complex_aspect = temp_aspect;
+						current_complexity = complexity(temp_aspect);
+					}
+				}
+			}
+		}
+		return least_complex_aspect;
+	}
+
+	function main_loop(){
+		//var current_state = res[0]; var depth = res[1]; var state_history = res[2]; var original_grid = res[3]; var returning_from_bad_state = res[4]; var last_touched_cell = res[5]; var chosen_cell = res[6]; var considered_cells = res[7]; var solved = res[8];
+		var used_grid = JSON.parse(JSON.stringify(current_state.grid));
+		console.log(`entering depth ${depth}`);
+		depth ++;
+		draw_grid(used_grid);
+		if (check_continuity(used_grid)) {
+			solved = true;
+			console.log("solved");
+			//return [grid, current_state, depth, state_history, original_grid, returning_from_bad_state, last_touched_cell, chosen_cell, considered_cells, true];
+		}
+		if (!returning_from_bad_state) {
+			console.log(`Not returning from bad state, grid: ${used_grid}`);
+			console.log(`impossible moves: ${current_state.impossible_moves}`);
+			/* should choose two closest base cells and try to connect them. */
+			/* if the algo exhausts ways to try to directly connect two cells */
+			/* it should try to connect 2 other cells (on edges). */
+			/* or maybe it should just try to connect 2 closest cells? */
+			/* 2 closest cells: */
+			var temp_closest_cells = closest_cells(used_grid);
+			var first_cell = get_cell_by_id(temp_closest_cells[0], used_grid);
+			var second_cell = get_cell_by_id(temp_closest_cells[1], used_grid);
+			var closest_neighbour = get_cell_by_id(closest_neighbor_to_cell(first_cell.id, second_cell.id, used_grid), used_grid);
+			/* then, determine the first cells neighbor that itself is closest to the second cell */
+			if (closest_cells.length > 0) {
+				var closest_neighbour_id = closest_neighbor_to_cell(temp_closest_cells[0], temp_closest_cells[1], used_grid);
+				if (closest_neighbour != null) {
+					var closest_neighbour = get_cell_by_id(closest_neighbour_id, grid);
+					var temp_best_aspect = best_aspect(first_cell.id, second_cell.id, closest_neighbour.id, used_grid);
+					closest_neighbour.aspect = temp_best_aspect;
+					var temp_img = new Image();
+					temp_img.src = './hq_aspect_images_black/thaumcraft/' + temp_best_aspect + '.png';
+					image_cache[temp_best_aspect] = temp_img;
+				} else {
+					/* if no closest cell is available, blacklist that connection. */
+					/* while the connection of two cells is blacklisted, they can not be elected */
+					/* as two closest cells. Voilà*/
+					returning_from_bad_state = true;
+					last_touched_cells = [first_cell.id, second_cell.id];
+					/* mark the connection somehow, so next main_loop will blacklist it, after */
+					/* having popped state history */
+				}
+			} else {
+				returning_from_bad_state = true;
+				/* mark last added cell as impossible move */
+			}
+			
+			
+
+		} else {
+			console.log(`Returning from bad state, grid: ${used_grid}`);
+			/* if possibilities for current state exhausted, remove it from state_history */
+			/* add last move to the now last state in history */
+			
+		}
+
+		//console.debug(`${}`)
+	}
+
+	var current_state = new State(grid);
+	var depth = 0;
+	var state_history = [];
+	var original_grid;// = JSON.parse(JSON.stringify(grid));//deepcopy(grid);
+	var returning_from_bad_state = false;
+	var last_touched_cells = null;
+	var chosen_cell = null;
+	var considered_cells = null;
+	var solved = false;
+	var max_depth = 100;
+
+	function solve() {
+		precalculate_cell_distances();
+		original_grid = JSON.parse(JSON.stringify(grid));
+		for (var i = 0; i < grid.length; i++) {
+  			for (var j = 0; j < grid[i].length; j++) {
+  				if (grid[i][j].aspect != 'none') {
+  					grid[i][j].base = true;
+  				}
+  			}
+  		}
+		//res = [current_state, depth, state_history, original_grid, returning_from_bad_state, last_touched_cell, chosen_cell, considered_cells, solved];
+		while(solved == false && depth < max_depth) {
+			main_loop();
+		}
+	}
 
 </script>
 </html>
