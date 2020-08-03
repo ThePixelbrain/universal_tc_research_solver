@@ -988,11 +988,11 @@
 	}
 
 	/* Finds shortest path from one cell to another considering blacklisted paths */
-	function find_path(id1, id2, state) {
+	function find_path(id1, id2, state, even) {
 		let grid = state.grid;
 		let cell1 = get_cell_by_id(id1, grid);
 		let cell2 = get_cell_by_id(id2, grid);
-		let path_blacklist = [[0, 4, 9, 14, 18]];
+		let path_blacklist = [[0, 4, 9, 14, 18], [0, 3, 8, 13, 17, 18]];
 		let res = [id1];
 		let path_found = false;
 		let path_depth = 0;
@@ -1004,13 +1004,7 @@
 			if (path_depth == 1000) {
 				return null;
 			}
-			/*for (let i = 0; i < cell_blacklist.length; i++) {
-				get_cell_by_id(cell_blacklist[i], grid).barred = true;
-			}*/
-			//if (cell_blacklist.length == 0 && ) {
-				//cell_blacklist.push()
-			//}
-			let path_closest_neighbor = get_cell_by_id(closest_neighbor_to_cell(res[res.length - 1], id2, grid), grid);
+			let path_closest_neighbor = get_cell_by_id(closest_neighbor_to_cell(res[res.length - 1], id2, grid, cell_blacklist), grid);
 			if (path_closest_neighbor) {
 				res.push(path_closest_neighbor.id);
 				let grid_copy = deepcopy(grid);
@@ -1022,19 +1016,23 @@
 					}
 				}
 				if (inArray(neighbor_chain(cell1.array_x, cell1.array_y, grid_copy, true), [cell2.array_x, cell2.array_y])) {
+					res.push(id2);
 					let same = false;
-					for (let i = 0; i < path_blacklist; i++) {
+					for (let i = 0; i < path_blacklist.length; i++) {
 						if (arrays_equal(path_blacklist[i], res)) {
 							same = true;
 							current_blacklisted_path_id = i;
 							break;
 						}
 					}
-					if (!same) {
+					if (!same && (even && res.length % 2 == 0) || (!even && res.length % 2 == 1)) {
 						path_found = true;
-						res.push(id2);
 					} else {
-						cell_blacklist.push(path_blacklist[already_blacklisted_cells_from_path(path_blacklist[current_blacklisted_path_id], cell_blacklist) + 1]);
+						cell_blacklist.push(path_blacklist[current_blacklisted_path_id][already_blacklisted_cells_from_path(path_blacklist[current_blacklisted_path_id], cell_blacklist) + 1]);
+						if (current_blacklisted_path_id < path_blacklist.length) {
+							//current_blacklisted_path_id++;
+						}
+						res = [id1];
 					}
 				}
 				grid_copy = null;
