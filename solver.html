@@ -110,7 +110,7 @@
 	<br>
 	<button onclick="solve()">Solve</button>
 	<br><br>
-	<button onclick="preset(6)">preset (debug)</button>
+	<button onclick="preset(3)">preset (debug)</button>
 	<br><br>
 	<input type="number" name="Grid size" onchange="resize_grid()" id="grid_size_input" value="5">
 	<h2 id="loading">Please wait, loading aspect images...</h2>
@@ -744,16 +744,14 @@
 		return false;
 	}
 
-	function cell_exists(x, y) {
-		try {
-			var i = grid[x][y].aspect;
-		} catch(e) {
+	function cell_exists(grid, x, y) {
+		if (typeof grid[x] === 'undefined') {
 			return false;
 		}
-		if (i != undefined) {
-			return true;
+		if (typeof grid[x][y] === 'undefined') {
+			return false;
 		}
-		return false;
+		return true;
 	}
 
 	function paint_tiles(coord_list) {
@@ -772,7 +770,7 @@
 		var right_coords = [[x, y - 1], [x + 1, y - 1], [x + 1, y], [x, y + 1], [x - 1, y + 1], [x - 1, y]];
 		if (x == Math.floor(grid.length / 2)) {
 			for (var i = 0; i < middle_coords.length; i++) {
-				if (!cell_exists(middle_coords[i][0], middle_coords[i][1]) || grid[middle_coords[i][0]][middle_coords[i][1]].aspect == 'none' || !((aspect_table[grid[x][y].aspect].includes(grid[middle_coords[i][0]][middle_coords[i][1]].aspect) || aspect_table[grid[middle_coords[i][0]][middle_coords[i][1]].aspect].includes(grid[x][y].aspect)) || all)) {
+				if (!cell_exists(grid, middle_coords[i][0], middle_coords[i][1]) || grid[middle_coords[i][0]][middle_coords[i][1]].aspect == 'none' || !((aspect_table[grid[x][y].aspect].includes(grid[middle_coords[i][0]][middle_coords[i][1]].aspect) || aspect_table[grid[middle_coords[i][0]][middle_coords[i][1]].aspect].includes(grid[x][y].aspect)) || all)) {
 					middle_coords.splice(i, 1);
 					i--;
 				}
@@ -780,7 +778,7 @@
 			return middle_coords;
 		} else if (x < Math.floor(grid.length / 2)) {
 			for (var i = 0; i < left_coords.length; i++) {
-				if (!cell_exists(left_coords[i][0], left_coords[i][1]) || grid[left_coords[i][0]][left_coords[i][1]].aspect == 'none' || !((aspect_table[grid[x][y].aspect].includes(grid[left_coords[i][0]][left_coords[i][1]].aspect) || aspect_table[grid[left_coords[i][0]][left_coords[i][1]].aspect].includes(grid[x][y].aspect)) || all)) {
+				if (!cell_exists(grid, left_coords[i][0], left_coords[i][1]) || grid[left_coords[i][0]][left_coords[i][1]].aspect == 'none' || !((aspect_table[grid[x][y].aspect].includes(grid[left_coords[i][0]][left_coords[i][1]].aspect) || aspect_table[grid[left_coords[i][0]][left_coords[i][1]].aspect].includes(grid[x][y].aspect)) || all)) {
 					left_coords.splice(i, 1);
 					i--;
 				}
@@ -788,7 +786,7 @@
 			return left_coords;
 		}
 		for (var i = 0; i < right_coords.length; i++) {
-				if (!cell_exists(right_coords[i][0], right_coords[i][1]) || grid[right_coords[i][0]][right_coords[i][1]].aspect == 'none' || !((aspect_table[grid[x][y].aspect].includes(grid[right_coords[i][0]][right_coords[i][1]].aspect) || aspect_table[grid[right_coords[i][0]][right_coords[i][1]].aspect].includes(grid[x][y].aspect) || all))) {
+				if (!cell_exists(grid, right_coords[i][0], right_coords[i][1]) || grid[right_coords[i][0]][right_coords[i][1]].aspect == 'none' || !((aspect_table[grid[x][y].aspect].includes(grid[right_coords[i][0]][right_coords[i][1]].aspect) || aspect_table[grid[right_coords[i][0]][right_coords[i][1]].aspect].includes(grid[x][y].aspect) || all))) {
 					right_coords.splice(i, 1);
 					i--;
 				}
@@ -803,7 +801,7 @@
 		var right_coords = [[x, y - 1], [x + 1, y - 1], [x + 1, y], [x, y + 1], [x - 1, y + 1], [x - 1, y]];
 		if (x == Math.floor(grid.length / 2)) {
 			for (var i = 0; i < middle_coords.length; i++) {
-				if (!cell_exists(middle_coords[i][0], middle_coords[i][1]) || (grid[middle_coords[i][0]][middle_coords[i][1]].barred && ignore_barred)) {
+				if (!cell_exists(grid, middle_coords[i][0], middle_coords[i][1]) || (grid[middle_coords[i][0]][middle_coords[i][1]].barred && ignore_barred)) {
 					middle_coords.splice(i, 1);
 					i--;
 				}
@@ -811,7 +809,7 @@
 			return middle_coords;
 		} else if (x < Math.floor(grid.length / 2)) {
 			for (var i = 0; i < left_coords.length; i++) {
-				if (!cell_exists(left_coords[i][0], left_coords[i][1]) || (grid[left_coords[i][0]][left_coords[i][1]].barred && ignore_barred)) {
+				if (!cell_exists(grid, left_coords[i][0], left_coords[i][1]) || (grid[left_coords[i][0]][left_coords[i][1]].barred && ignore_barred)) {
 					left_coords.splice(i, 1);
 					i--;
 				}
@@ -819,7 +817,7 @@
 			return left_coords;
 		}
 		for (var i = 0; i < right_coords.length; i++) {
-				if (!cell_exists(right_coords[i][0], right_coords[i][1]) || (grid[right_coords[i][0]][right_coords[i][1]].barred && ignore_barred)) {
+				if (!cell_exists(grid, right_coords[i][0], right_coords[i][1]) || (grid[right_coords[i][0]][right_coords[i][1]].barred && ignore_barred)) {
 					right_coords.splice(i, 1);
 					i--;
 				}
@@ -911,7 +909,11 @@
 		if (!path) {
 			path = state.current_path;
 		}
+		let neighbor_chain_of_path = neighbor_chain(get_cell_by_id(path[0], state.grid).array_x, get_cell_by_id(path[0], state.grid).array_y, state.grid);
 		for (let i = 1; i < path.length; i++) {
+			if (i == path.length - 1 && !neighbor_chain_of_path.includes(path[i])) {
+				return path.length - 2; bruh
+			}
 			if (get_cell_by_id(path[i], state.grid).aspect == 'none') {
 				return i - 1;
 			}
@@ -943,8 +945,8 @@
 							if (state.current_path && !closest_neighbor_to_cell(state.grid[i][j].id, state.grid[k][l].id, state)) {
 								continue;
 							}
-							if (state.current_path) {
-								if (grid[i][j].id != state.current_path[last_used_path_cell(state)]) {
+							if (state.current_path && !path_complete(state.current_path, state)) {
+								if (grid[i][j].id != state.current_path[last_used_path_cell(state)] ) {
 									continue;
 								}
 							}
@@ -1369,7 +1371,7 @@
 	}
 
 	function main_loop(){
-		if (depth == 300) {
+		if (depth == 85) {
 			console.log("debug");
 		}
 		console.log(`entering depth ${depth}`);
