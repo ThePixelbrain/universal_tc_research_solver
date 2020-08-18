@@ -12,6 +12,7 @@
 		body {
 			background-color: #232327;
 		}
+		
 	</style>
 </head>
 <body>
@@ -71,16 +72,64 @@
 		<option value="vitium">Vitium</option>
 		<option value="vitreus">Vitreus</option>
 		<option value="volatus">Volatus</option>
+
+		<option value="none">===============</option>
+
+		<option value="desidia">Desidia</option>
+		<option value="gula">Gula</option>
+		<option value="infernus">Infernus</option>
+		<option value="invidia">Invidia</option>
+		<option value="ira">Ira</option>
+		<option value="luxuria">Luxuria</option>
+		<option value="superbia">Superbia</option>
+
+		<option value="none">===============</option>
+
+		<option value="tempus">Tempus</option>
+
+		<option value="none">===============</option>
+
+		<option value="electrum">Electrum</option>
+		<option value="magneto">Magneto</option>
+		<option value="nebrisum">Nebrisum</option>
+		<option value="radio">Radio</option>
+		<option value="strontio">Strontio</option>
+
+		<option value="none">===============</option>
+
+		<option value="terminus">Terminus</option>
+
+		<option value="none">===============</option>
+
+		<option value="sagrausten">Sagrausten</option>
+		<option value="slusium">Slusium</option>
+		<option value="xablum">Xablum</option>
+		<option value="xenil">Xenil</option>
+		<option value="zetralt">Zetralt</option>
 	</select>
 	<br>
 	<button onclick="solve()">Solve</button>
 	<br><br>
-	<button onclick="preset(4)">preset (debug)</button>
+	<button onclick="preset(5)">preset (debug)</button>
 	<br><br>
+	<input type="number" name="Grid size" onchange="resize_grid()" id="grid_size_input" value="5">
 	<h2 id="loading">Please wait, loading aspect images...</h2>
+	<div id="gui_aspect_selector" onload="load_aspect_selector()"></div>
+	<div style="overflow-x:auto;">
+  
+	<div style=""></div>
+
+  
+  </table>
+</div>
 </body>
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.min.js"></script>-->
 <script>
+
+	function load_aspect_selector() {
+		let selector = document.getElementById('gui_aspect_selector');
+
+	}
 
 	/* detect click outside of canvas */
 	document.addEventListener('click', function(event) {
@@ -277,17 +326,17 @@
 
 	function draw_initial_grid(grid_size) {
 
-		var hex_side_len = canvas.height / 2 - 1;
+		let hex_side_len = canvas.height / 2 - 1;
 		//draw_hexagon(canvas.width / 2, canvas.height / 2, hex_side_len, undefined, undefined, undefined, true);
 
 		var hex_num_vertical = grid_size * 2 - 1;
 		var blank_num_vertical = hex_num_vertical - 1;
 		console.debug("hex_num_vertical: " + hex_num_vertical + ", blank_num_vertical: " + blank_num_vertical)
-		var blank_ratio = 1/10;
-		var blank_len = Math.floor(canvas.height * blank_ratio / (hex_num_vertical * blank_ratio + blank_num_vertical));
+		let blank_ratio = 1/10;
+		let blank_len = Math.floor(canvas.height * blank_ratio / (hex_num_vertical * blank_ratio + blank_num_vertical));
 
-		var small_hex_len_vertical = canvas.height / (hex_num_vertical + blank_num_vertical * blank_ratio);//canvas.height / hex_num_vertical - blank_len / hex_num_vertical;
-		var small_hex_len = small_hex_len_vertical / 2 / Math.cos(to_rad(30));
+		let small_hex_len_vertical = canvas.height / (hex_num_vertical + blank_num_vertical * blank_ratio);//canvas.height / hex_num_vertical - blank_len / hex_num_vertical;
+		let small_hex_len = small_hex_len_vertical / 2 / Math.cos(to_rad(30));
 
 		console.debug(`blank_len: ${blank_len}, small_hex_len_vertical: ${small_hex_len_vertical}, small_hex_len: ${small_hex_len}`);
 
@@ -299,13 +348,13 @@
 		/* the number of "columns" is also the number of tiles in the middle column */
 		/* the column in the middle has grid_size * 2 - 1 tiles */
 		column_num = grid_size * 2 - 1;
-		var list = [];
-		var id = 0;
-		for (var i = 0; i < column_num; i++) {
+		let list = [];
+		let id = 0;
+		for (let i = 0; i < column_num; i++) {
 			list.push([]);
 			/* number of tiles in column is grid_size + i, valid up to the middle tho.*/
-			var num_of_cells_in_column;
-			var shift_x;
+			let num_of_cells_in_column;
+			let shift_x;
 			if (i <= Math.floor(column_num / 2)) {
 				num_of_cells_in_column = grid_size + i;
 				shift_x = (column_num - num_of_cells_in_column) * (1.5 * small_hex_len + blank_len);//(column_num - num_of_cells_in_column) * (small_hex_len + blank_len);
@@ -316,10 +365,10 @@
 			console.debug("num of cells: " + num_of_cells_in_column);
 
 			/* each row going from the center, is shifted by half a hexagone per row */
-			var shift_y = (column_num - num_of_cells_in_column) * (small_hex_len_vertical / 2 + blank_len / 2);//(column_num - num_of_cells_in_column) * small_hex_len_vertical / 2 + blank_len / 2;
+			let shift_y = (column_num - num_of_cells_in_column) * (small_hex_len_vertical / 2 + blank_len / 2);//(column_num - num_of_cells_in_column) * small_hex_len_vertical / 2 + blank_len / 2;
 
 
-			for (var j = 0; j < num_of_cells_in_column; j++) {
+			for (let j = 0; j < num_of_cells_in_column; j++) {
 				draw_hexagon(canvas.width / 2 - shift_x, j * (small_hex_len_vertical + blank_len) + small_hex_len_vertical / 2 + shift_y, small_hex_len, 2);
 				list[i].push(new Cell(canvas.width / 2 - shift_x, j * (small_hex_len_vertical + blank_len) + small_hex_len_vertical / 2 + shift_y, 'none', false, small_hex_len, id, i, j));
 				id++;
@@ -327,6 +376,8 @@
 		}
 		return list;
 	}
+
+	var drawing_ids = false;
 
 	function draw_grid(grid) {
 		console.debug('drawing grid');
@@ -348,6 +399,9 @@
 					ctx.drawImage(image_cache[grid[i][j].aspect], grid[i][j].x - img_size / 2, grid[i][j].y - img_size / 2, img_size, img_size);
 				}
 			}
+		}
+		if (drawing_ids) {
+			draw_hex_ids(grid);
 		}
 	}
 
@@ -375,6 +429,16 @@
 				ctx.arc(grid[i][j].x, grid[i][j].y, 5, 0, 2 * Math.PI);
 				ctx.stroke();
 				ctx.closePath();
+			}
+		}
+	}
+
+	function draw_hex_ids(grid) {
+		ctx.font = "30px Arial";
+		ctx.fillStyle = 'red';
+		for (let i = 0; i < grid.length; i++) {
+			for (let j = 0; j < grid[i].length; j++) {
+				ctx.fillText(grid[i][j].id, grid[i][j].x, grid[i][j].y);
 			}
 		}
 	}
@@ -464,6 +528,18 @@
 			grid[7][2].barred = true;
 			grid[7][4].barred = true;
 			draw_grid(grid);
+		} else if (num == 5) {
+			grid = draw_initial_grid(4);
+			current_state.grid = grid;
+			grid[0][3].aspect = 'instrumentum';
+			grid[1][0].aspect = 'arbor';
+			grid[4][0].aspect = 'gelum';
+			grid[4][5].aspect = 'praecantatio';
+			grid[6][2].aspect = 'aqua';
+			grid[1][3].barred = true;
+			grid[2][0].barred = true;
+			grid[4][3].barred = true;
+			draw_grid(grid);
 		} else {
 			console.warn("Invalid preset!");
 		}
@@ -517,7 +593,27 @@
 		'vinculum':['perditio','motus'],
 		'vitium':['perditio','praecantatio'],
 		'vitreus':['ordo','terra'],
-		'volatus':['aer','motus']
+		'volatus':['aer','motus'],
+
+		'desidia':['vinculum','spiritus'],
+		'gula':['fames','vacuos'],
+		'infernus':['ignis','praecantatio'],
+		'invidia':['sensus','fames'],
+		'ira':['telum','ignis'],
+		'luxuria':['corpus','fames'],
+		'superbia':['volatus','vacuos'],
+		'tempus':['vacuos','ordo'],
+		'electrum':['potentia','machina'],
+		'magneto':['metallum','iter'],
+		'nebrisum':['perfodio', 'lucrum'],
+		'radio':['lux','potentia'],
+		'strontio':['perditio','cognitio'],
+		'terminus':['alienis','lucrum'],
+		'sagrausten':['xenil','radio'],
+		'slusium':['xenil','nebrisum'],
+		'xablum':['xenil','slusium'],
+		'xenil':['magneto','radio'],
+		'zetralt':['xablum','auram']
 	};
 
 	/* Image cache (for debugging) */
@@ -525,7 +621,7 @@
 	var image_count = 0;
 	for (var i = 0; i < keylen(aspect_table); i++) {
 		let temp_img = new Image();
-		temp_img.src = './hq_aspect_images_black/thaumcraft/' + keyAtIndex(aspect_table, i) + '.png';
+		temp_img.src = './hq_images_black_all/' + keyAtIndex(aspect_table, i) + '.png';
 		image_cache[keyAtIndex(aspect_table, i)] = temp_img;
 		temp_img.addEventListener("load", function () {
 			image_count++;
@@ -542,6 +638,14 @@
 	/* Need functions for neighbor checks */
 
 	var grid = draw_initial_grid(5);
+
+	function resize_grid() {
+		let input = document.getElementById('grid_size_input');
+		white_canvas();
+		//alert(input.value);
+		grid = draw_initial_grid(parseInt(input.value));
+		current_state.grid = grid;
+	}
 
 	function compounds(aspect) {
 		return aspect_table[aspect];
@@ -811,6 +915,9 @@
 								in_neighbor_chain = true;
 							}
 
+							if (state.current_path && !closest_neighbor_to_cell(state.grid[i][j].id, state.grid[k][l].id, state)) {
+								continue;
+							}
 							if (!in_neighbor_chain && state.grid[k][l].aspect != 'none' && !impossible_id(state.grid[k][l].id ,state)) {
 								if (current_closest_pair.length == 0) {
 									current_closest_pair = [state.grid[i][j].id, state.grid[k][l].id];
