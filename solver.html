@@ -110,7 +110,7 @@
 	<br>
 	<button onclick="solve()">Solve</button>
 	<br><br>
-	<button onclick="preset(2)">preset (debug)</button>
+	<button onclick="preset(1)">preset (debug)</button>
 	<br><br>
 	<input type="number" name="Grid size" onchange="resize_grid()" id="grid_size_input" value="5">
 	<h2 id="loading">Please wait, loading aspect images...</h2>
@@ -463,6 +463,8 @@
 		/* base */
 		clear_grid(grid);
 		if (num == 0) {
+			grid = draw_initial_grid(3);
+			current_state.grid = grid;
 			grid[0][2].aspect = 'instrumentum';
 			grid[2][0].aspect = 'permutatio';
 			grid[4][2].aspect = 'metallum';
@@ -475,6 +477,8 @@
 			grid[3][2].aspect = 'vitreus'; */
 			draw_grid(grid);
 		} else if (num == 1) {
+			grid = draw_initial_grid(3);
+			current_state.grid = grid;
 			var barred_blacklist = [2, 5, 9, 13];
 			for (var i = 0; i < grid.length; i++) {
 				for (var j = 0; j < grid[i].length; j++) {
@@ -493,6 +497,8 @@
 			grid[3][1].aspect = 'lux';
 			draw_grid(grid);
 		} else if (num == 2) {
+			grid = draw_initial_grid(3);
+			current_state.grid = grid;
 			grid[0][3].aspect = 'instrumentum';
 			grid[3][0].aspect = 'arbor';
 			grid[6][3].aspect = 'praecantatio';
@@ -503,6 +509,8 @@
 			draw_grid(grid);
 
 		} else if (num == 3) {
+			grid = draw_initial_grid(3);
+			current_state.grid = grid;
 			grid[0][3].aspect = 'permutatio';
 			grid[1][0].aspect = 'motus';
 			grid[5][4].aspect = 'auram';
@@ -513,6 +521,8 @@
 			grid[6][3].barred = true;
 			draw_grid(grid);
 		} else if (num == 4) {
+			grid = draw_initial_grid(4);
+			current_state.grid = grid;
 			grid[0][0].aspect = 'terra';
 			grid[0][4].aspect = 'instrumentum';
 			grid[4][0].aspect = 'aer';
@@ -1383,6 +1393,7 @@
 		if (check_continuity(current_state.grid)) {
 			solved = true;
 			console.log("==============\nS O L V E D\n==============");
+			return;
 		}
 		if (!returning_from_bad_state) {
 			console.log(`Not returning from bad state`)
