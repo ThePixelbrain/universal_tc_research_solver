@@ -110,7 +110,7 @@
 	<br>
 	<button onclick="solve()">Solve</button>
 	<br><br>
-	<button onclick="preset(3)">preset (debug)</button>
+	<button onclick="preset(2)">preset (debug)</button>
 	<br><br>
 	<input type="number" name="Grid size" onchange="resize_grid()" id="grid_size_input" value="5">
 	<h2 id="loading">Please wait, loading aspect images...</h2>
@@ -972,6 +972,9 @@
 				}
 			}
 		}
+		if (current_closest_pair.length == 0 && state.current_path) {
+			return [state.current_path[0], state.current_path[state.current_path.length - 1]];
+		}
 		return current_closest_pair;
 	}
 
@@ -1371,7 +1374,7 @@
 	}
 
 	function main_loop(){
-		if (depth == 85) {
+		if (depth == 217) {
 			console.log("debug");
 		}
 		console.log(`entering depth ${depth}`);
