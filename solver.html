@@ -110,7 +110,7 @@
 	<br>
 	<button onclick="solve()">Solve</button>
 	<br><br>
-	<button onclick="preset(5)">preset (debug)</button>
+	<button onclick="preset(6)">preset (debug)</button>
 	<br><br>
 	<input type="number" name="Grid size" onchange="resize_grid()" id="grid_size_input" value="5">
 	<h2 id="loading">Please wait, loading aspect images...</h2>
@@ -540,6 +540,19 @@
 			grid[2][0].barred = true;
 			grid[4][3].barred = true;
 			draw_grid(grid);
+		} else if (num == 6) {
+			grid = draw_initial_grid(4);
+			current_state.grid = grid;
+			grid[0][3].aspect = 'instrumentum';
+			grid[1][0].aspect = 'arbor';
+			grid[4][0].aspect = 'ordo';
+			grid[4][5].aspect = 'praecantatio';
+			grid[6][2].aspect = 'terra';
+			grid[0][1].barred = true;
+			grid[3][4].barred = true;
+			grid[4][4].barred = true;
+			grid[5][4].barred = true;
+			draw_grid(grid);
 		} else {
 			console.warn("Invalid preset!");
 		}
@@ -894,6 +907,18 @@
 		return false;
 	}
 
+	function last_used_path_cell(state, path = null) {
+		if (!path) {
+			path = state.current_path;
+		}
+		for (let i = 1; i < path.length; i++) {
+			if (get_cell_by_id(path[i], state.grid).aspect == 'none') {
+				return i - 1;
+			}
+		}
+		return path.length - 1;
+	}
+
 	function closest_cells(state) {
 		/* basically take every cell and get all distances to all other cells */
 		/* uses precalculated values */
@@ -917,6 +942,11 @@
 
 							if (state.current_path && !closest_neighbor_to_cell(state.grid[i][j].id, state.grid[k][l].id, state)) {
 								continue;
+							}
+							if (state.current_path) {
+								if (grid[i][j].id != state.current_path[last_used_path_cell(state)]) {
+									continue;
+								}
 							}
 							if (!in_neighbor_chain && state.grid[k][l].aspect != 'none' && !impossible_id(state.grid[k][l].id ,state)) {
 								if (current_closest_pair.length == 0) {
@@ -963,7 +993,7 @@
 		console.log("precalculating distances: done");
 	}
 
-	function closest_neighbor_to_cell(id1, id2, state, path = [], custom_blacklist = []) {
+	function closest_neighbor_to_cell(id1, id2, state, path = [], custom_blacklist = [], finding_path = false, current_path = []) {
 		var cell1 = get_cell_by_id(id1, state.grid);
 		var cell2 = get_cell_by_id(id2, state.grid);
 		var temp_neighbors = tile_neighbors_wo_aspects(cell1.array_x, cell1.array_y, state.grid);
@@ -972,10 +1002,10 @@
 		for (var i = 0; i < temp_neighbors.length; i++) {
 			let target = state.grid[temp_neighbors[i][0]][temp_neighbors[i][1]];
 			if (target.aspect == 'none' && !target.barred) {
-				if (temp_closest_neighbor == null && !custom_blacklist.includes(target.id) && (path.length > 0 == path.includes(target.id)) && (state.current_path_forbidden_child ? state.current_path_forbidden_child[id1] != target.id : true)) {
+				if (temp_closest_neighbor == null && !custom_blacklist.includes(target.id) && (path.length > 0 == path.includes(target.id)) && (state.current_path_forbidden_child ? state.current_path_forbidden_child[id1] != target.id : true) && (finding_path ? !current_path.includes(target.id) : true)) {
 					temp_closest_neighbor = target.id;
 					temp_closest_distance = distance_dict[id2][target.id];//distance_dict[target.id][id2];
-				} else if ((distance_dict[id2][target.id] < temp_closest_distance) && !custom_blacklist.includes(target.id) && (path.length > 0 == path.includes(target.id)) && (state.current_path_forbidden_child ? state.current_path_forbidden_child[id1] != target.id : true)) {
+				} else if ((distance_dict[id2][target.id] < temp_closest_distance) && !custom_blacklist.includes(target.id) && (path.length > 0 == path.includes(target.id)) && (state.current_path_forbidden_child ? state.current_path_forbidden_child[id1] != target.id : true) && (finding_path ? !current_path.includes(target.id) : true)) {
 					temp_closest_neighbor = target.id;
 					temp_closest_distance = distance_dict[id2][target.id];
 				}
@@ -1215,9 +1245,9 @@
 			if (!path_return_from_bad_state) {
 				let cell_to_append = null;
 				if (current_path_state.blacklist_dict.hasOwnProperty(current_path_state.current_path[current_path_state.current_path.length - 1])) {
-					cell_to_append = get_cell_by_id(closest_neighbor_to_cell(current_path_state.current_path[current_path_state.current_path.length - 1], id2, state, [], current_path_state.blacklist_dict[current_path_state.current_path[current_path_state.current_path.length - 1]].concat(current_path_state.current_path)), state.grid);
+					cell_to_append = get_cell_by_id(closest_neighbor_to_cell(current_path_state.current_path[current_path_state.current_path.length - 1], id2, state, [], current_path_state.blacklist_dict[current_path_state.current_path[current_path_state.current_path.length - 1]].concat(current_path_state.current_path), true, current_path_state.current_path), state.grid);
 				} else {
-					cell_to_append = get_cell_by_id(closest_neighbor_to_cell(current_path_state.current_path[current_path_state.current_path.length - 1], id2, state), state.grid);
+					cell_to_append = get_cell_by_id(closest_neighbor_to_cell(current_path_state.current_path[current_path_state.current_path.length - 1], id2, state, [], [], true, current_path_state.current_path), state.grid);
 				}
 				if (cell_to_append) {
 					current_path_state.current_path.push(cell_to_append.id);
