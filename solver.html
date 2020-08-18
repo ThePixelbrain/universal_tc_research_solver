@@ -110,7 +110,7 @@
 	<br>
 	<button onclick="solve()">Solve</button>
 	<br><br>
-	<button onclick="preset(1)">preset (debug)</button>
+	<button onclick="preset(0)">preset (debug)</button>
 	<br><br>
 	<input type="number" name="Grid size" onchange="resize_grid()" id="grid_size_input" value="5">
 	<h2 id="loading">Please wait, loading aspect images...</h2>
@@ -125,6 +125,8 @@
 </body>
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.min.js"></script>-->
 <script>
+
+	var debugging = false;
 
 	function load_aspect_selector() {
 		let selector = document.getElementById('gui_aspect_selector');
@@ -377,8 +379,6 @@
 		return list;
 	}
 
-	var drawing_ids = false;
-
 	function draw_grid(grid) {
 		console.debug('drawing grid');
 		white_canvas();
@@ -400,7 +400,7 @@
 				}
 			}
 		}
-		if (drawing_ids) {
+		if (debugging) {
 			draw_hex_ids(grid);
 		}
 	}
@@ -497,7 +497,7 @@
 			grid[3][1].aspect = 'lux';
 			draw_grid(grid);
 		} else if (num == 2) {
-			grid = draw_initial_grid(3);
+			grid = draw_initial_grid(4);
 			current_state.grid = grid;
 			grid[0][3].aspect = 'instrumentum';
 			grid[3][0].aspect = 'arbor';
@@ -509,7 +509,7 @@
 			draw_grid(grid);
 
 		} else if (num == 3) {
-			grid = draw_initial_grid(3);
+			grid = draw_initial_grid(4);
 			current_state.grid = grid;
 			grid[0][3].aspect = 'permutatio';
 			grid[1][0].aspect = 'motus';
@@ -521,7 +521,7 @@
 			grid[6][3].barred = true;
 			draw_grid(grid);
 		} else if (num == 4) {
-			grid = draw_initial_grid(4);
+			grid = draw_initial_grid(5);
 			current_state.grid = grid;
 			grid[0][0].aspect = 'terra';
 			grid[0][4].aspect = 'instrumentum';
@@ -1383,13 +1383,58 @@
 		return false;
 	}
 
+	function remove_excess_aspects(state) {
+		for (let i = 0; i < state.current_path.length - 2; i++) {
+			let cell1 = get_cell_by_id(state.current_path[i], state.grid);
+			let cell2 = get_cell_by_id(state.current_path[i + 1], state.grid);
+			let cell3 = get_cell_by_id(state.current_path[i + 2], state.grid);
+			if (cell1.aspect == 'none' || cell2.aspect == 'none' || cell3.aspect == 'none') {
+				continue;
+			}
+			let cell1_neighbors = tile_neighbors(cell1.array_x, cell1.array_y, state.grid, true);
+			let are_neighbors = false;
+			for (let j = 0; j < cell1_neighbors.length; j++) {
+				if (cell3.id == state.grid[cell1_neighbors[j][0]][cell1_neighbors[j][1]].id) {
+					are_neighbors = true;
+				}
+			}
+			if (are_neighbors && can_connect(cell1.aspect, cell3.aspect)) {
+				cell3.aspect = 'none';
+				if (debugging) {
+					draw_grid(state.grid);
+				}
+			}
+		}
+		for (let i = 1; i < state.current_path.length - 1; i++) {
+			let cell1 = get_cell_by_id(state.current_path[i], state.grid);
+			if (cell1.aspect == 'none') {
+				continue;
+			}
+			let cell_neighbors = tile_neighbors(cell1.array_x, cell1.array_y, state.grid, true);
+			let connected_count = 0;
+			for (let j = 0; j < cell_neighbors.length; j++) {
+				if (can_connect(cell1.aspect, state.grid[cell_neighbors[j][0]][cell_neighbors[j][1]].aspect)) {
+					connected_count ++;
+				}
+			}
+			if (connected_count == 1) {
+					cell1.aspect = 'none';
+					if (debugging) {
+						draw_grid(state.grid);
+					}
+				}
+		}
+	}
+
 	function main_loop(){
-		if (depth == 217) {
+		if (depth == 64) {
 			console.log("debug");
 		}
 		console.log(`entering depth ${depth}`);
 		depth++;
-		draw_grid(current_state.grid);
+		if (debugging) {
+			draw_grid(current_state.grid);
+		}
 		if (check_continuity(current_state.grid)) {
 			solved = true;
 			console.log("==============\nS O L V E D\n==============");
@@ -1401,6 +1446,7 @@
 			var temp_closest_cells = closest_cells(current_state);
 			if (temp_closest_cells.length > 0) {
 				if (current_state.current_path && path_complete(current_state.current_path, current_state)) {
+					remove_excess_aspects(current_state);
 					current_state.current_path = null;
 				}
 				if (!current_state.current_path) {
