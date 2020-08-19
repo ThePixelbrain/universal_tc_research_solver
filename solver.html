@@ -110,20 +110,22 @@
 	<br>
 	<button onclick="solve()">Solve</button>
 	<br><br>
-	<button onclick="preset(0)">preset (debug)</button>
+	<button onclick="preset(6)">preset (debug)</button>
 	<br><br>
 	<input type="number" name="Grid size" onchange="resize_grid()" id="grid_size_input" value="5">
 	<h2 id="loading">Please wait, loading aspect images...</h2>
 	<div id="gui_aspect_selector" onload="load_aspect_selector()"></div>
-	<div style="overflow-x:auto;">
+	<!--<div style="overflow-x:auto;">-->
   
-	<div style=""></div>
+	<div style="display: flex; flex-wrap: wrap; justify-content: space-evenly">
+		<div style="width: 220px; height: 60px; border: solid; border-color: white; display: flex; align-items: flex-start;">
+			<img src="./hq_images_black_all/aer.png" style="">
+		</div>
+	</div>
 
-  
-  </table>
-</div>
+	<br><br>
 </body>
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.min.js"></script>-->
+
 <script>
 
 	var debugging = false;
@@ -465,16 +467,7 @@
 		if (num == 0) {
 			grid = draw_initial_grid(3);
 			current_state.grid = grid;
-			grid[0][2].aspect = 'instrumentum';
-			grid[2][0].aspect = 'permutatio';
-			grid[4][2].aspect = 'metallum';
-			/* solution */
-			/* grid[1][1].aspect = 'vitreus';
-			grid[1][2].aspect = 'ordo';
-			grid[2][1].aspect = 'ordo';
-			grid[2][2].aspect = 'ordo';
-			grid[3][1].aspect = 'vitreus';
-			grid[3][2].aspect = 'vitreus'; */
+			grid[0][2].aspect = 'instrumentum';grid[2][0].aspect = 'permutatio';grid[4][2].aspect = 'metallum';
 			draw_grid(grid);
 		} else if (num == 1) {
 			grid = draw_initial_grid(3);
@@ -493,79 +486,54 @@
 					}
 				}
 			}
-			grid[0][2].aspect = 'aer';
-			grid[3][1].aspect = 'lux';
+			grid[0][2].aspect = 'aer';grid[3][1].aspect = 'lux';
 			draw_grid(grid);
 		} else if (num == 2) {
 			grid = draw_initial_grid(4);
-			current_state.grid = grid;
-			grid[0][3].aspect = 'instrumentum';
-			grid[3][0].aspect = 'arbor';
-			grid[6][3].aspect = 'praecantatio';
-			grid[0][0].barred = true;
-			grid[4][2].barred = true;
-			grid[5][3].barred = true;
-			grid[6][1].barred = true;
+			current_state.grid = grid;grid[0][3].aspect = 'instrumentum';grid[3][0].aspect = 'arbor';grid[6][3].aspect = 'praecantatio';grid[0][0].barred = true;grid[4][2].barred = true;grid[5][3].barred = true;grid[6][1].barred = true;
 			draw_grid(grid);
-
 		} else if (num == 3) {
 			grid = draw_initial_grid(4);
 			current_state.grid = grid;
-			grid[0][3].aspect = 'permutatio';
-			grid[1][0].aspect = 'motus';
-			grid[5][4].aspect = 'auram';
-			grid[6][0].aspect = 'praecantatio';
-			grid[3][4].barred = true;
-			grid[3][6].barred = true;
-			grid[4][4].barred = true;
-			grid[6][3].barred = true;
+			grid[0][3].aspect = 'permutatio';grid[1][0].aspect = 'motus';grid[5][4].aspect = 'auram';grid[6][0].aspect = 'praecantatio';grid[3][4].barred = true;grid[3][6].barred = true;grid[4][4].barred = true;grid[6][3].barred = true;
 			draw_grid(grid);
 		} else if (num == 4) {
 			grid = draw_initial_grid(5);
 			current_state.grid = grid;
-			grid[0][0].aspect = 'terra';
-			grid[0][4].aspect = 'instrumentum';
-			grid[4][0].aspect = 'aer';
-			grid[4][8].aspect = 'praecantatio';
-			grid[8][0].aspect = 'ordo';
-			grid[8][4].aspect = 'arbor';
-			grid[1][0].barred = true;
-			grid[2][2].barred = true;
-			grid[2][3].barred = true;
-			grid[4][4].barred = true;
-			grid[5][2].barred = true;
-			grid[5][6].barred = true;
-			grid[7][2].barred = true;
-			grid[7][4].barred = true;
+			grid[0][0].aspect = 'terra';grid[0][4].aspect = 'instrumentum';grid[4][0].aspect = 'aer';grid[4][8].aspect = 'praecantatio';grid[8][0].aspect = 'ordo';grid[8][4].aspect = 'arbor';grid[1][0].barred = true;grid[2][2].barred = true;grid[2][3].barred = true;grid[4][4].barred = true;grid[5][2].barred = true;grid[5][6].barred = true;grid[7][2].barred = true;grid[7][4].barred = true;
 			draw_grid(grid);
 		} else if (num == 5) {
 			grid = draw_initial_grid(4);
-			current_state.grid = grid;
-			grid[0][3].aspect = 'instrumentum';
-			grid[1][0].aspect = 'arbor';
-			grid[4][0].aspect = 'gelum';
-			grid[4][5].aspect = 'praecantatio';
-			grid[6][2].aspect = 'aqua';
-			grid[1][3].barred = true;
-			grid[2][0].barred = true;
-			grid[4][3].barred = true;
+			current_state.grid = grid;grid[0][3].aspect = 'instrumentum';grid[1][0].aspect = 'arbor';grid[4][0].aspect = 'gelum';grid[4][5].aspect = 'praecantatio';grid[6][2].aspect = 'aqua';grid[1][3].barred = true;grid[2][0].barred = true;grid[4][3].barred = true;
 			draw_grid(grid);
 		} else if (num == 6) {
 			grid = draw_initial_grid(4);
 			current_state.grid = grid;
-			grid[0][3].aspect = 'instrumentum';
-			grid[1][0].aspect = 'arbor';
-			grid[4][0].aspect = 'ordo';
-			grid[4][5].aspect = 'praecantatio';
-			grid[6][2].aspect = 'terra';
-			grid[0][1].barred = true;
-			grid[3][4].barred = true;
-			grid[4][4].barred = true;
-			grid[5][4].barred = true;
+			grid[0][3].aspect = 'instrumentum';grid[1][0].aspect = 'arbor';grid[4][0].aspect = 'ordo';grid[4][5].aspect = 'praecantatio';grid[6][2].aspect = 'terra';grid[0][1].barred = true;grid[3][4].barred = true;grid[4][4].barred = true;grid[5][4].barred = true;
+			draw_grid(grid);
+		} else if (num == 7) {
+			grid = draw_initial_grid(5);
+			current_state.grid = grid;
+			grid[0][1].aspect = 'auram';
+			grid[0][4].aspect = 'terra';
+			grid[1][0].aspect = 'ignis';
+			grid[3][7].aspect = 'permutatio';
+			grid[4][0].aspect = 'gelum';
+			grid[5][7].aspect = 'potentia';
+			grid[7][0].aspect = 'perfodio';
+			grid[8][1].aspect = 'perditio';
+			grid[8][4].aspect = 'ordo';
+			grid[1][3].barred = true;
+			grid[3][0].barred = true;
+			grid[4][3].barred = true;
+			grid[5][0].barred = true;
+			grid[5][6].barred = true;
+			grid[7][4].barred = true;
 			draw_grid(grid);
 		} else {
 			console.warn("Invalid preset!");
 		}
+		precalculate_cell_distances();
 	}
 
 	var aspect_table = {
@@ -836,12 +804,16 @@
 	}
 
 	/* This function only considers cell neighbors that can be connected */
-	function neighbor_chain(x, y, grid, path = false, cell_list = null) {
+	/* path takes blank cells into account */
+	/* ignore_aspects doesn't take cells with aspects into account except the starting one */
+	function neighbor_chain(x, y, grid, path = false, cell_list = null, ignore_aspects = false, current_path = []) {
 		//console.log(`x: ${x}, y: ${y}, cell_list: ${cell_list}`);
+		let first_time = false;
 		if (cell_list == null) {
 			cell_list = [];
+			first_time = true;
 		}
-		if ((grid[x][y].aspect != 'none' || path) && !inArray(cell_list, [x, y])) {
+		if (((grid[x][y].aspect != 'none' || path) && (ignore_aspects ? (grid[x][y].aspect == 'none' || first_time) : true)) && !inArray(cell_list, [x, y]) && (current_path.length > 0 ? !current_path.includes(grid[x][y].id) : true)) {
 			cell_list.push([x, y]);
 			var neighbors;
 			if (path) {
@@ -852,7 +824,7 @@
 			//console.log(`neighbors: ${neighbors}`);
 			for (var i = 0; i < neighbors.length; i++) {
 				//console.log(`i: ${i}, neighbor len: ${neighbors.length}`);
-				neighbor_chain(neighbors[i][0], neighbors[i][1], grid, path, cell_list);
+				neighbor_chain(neighbors[i][0], neighbors[i][1], grid, path, cell_list, ignore_aspects, current_path);
 			}
 		}
 		return cell_list;
@@ -922,7 +894,7 @@
 		let neighbor_chain_of_path = neighbor_chain(get_cell_by_id(path[0], state.grid).array_x, get_cell_by_id(path[0], state.grid).array_y, state.grid);
 		for (let i = 1; i < path.length; i++) {
 			if (i == path.length - 1 && !neighbor_chain_of_path.includes(path[i])) {
-				return path.length - 2; bruh
+				return path.length - 2;
 			}
 			if (get_cell_by_id(path[i], state.grid).aspect == 'none') {
 				return i - 1;
@@ -995,7 +967,6 @@
 				for (var k = 0; k < grid.length; k++) {
 					for (var l = 0; l < grid[k].length; l++) {
 						if (!(i == k && j == l)) {
-							//console.log(get_distance(grid[i][j].x, grid[i][j].y, grid[k][l].x, grid[k][l].y));
 							if (!distance_dict[grid[i][j].id]) {
 								distance_dict[grid[i][j].id] = {};
 							}
@@ -1016,7 +987,7 @@
 		var temp_closest_distance = null;
 		for (var i = 0; i < temp_neighbors.length; i++) {
 			let target = state.grid[temp_neighbors[i][0]][temp_neighbors[i][1]];
-			if (target.aspect == 'none' && !target.barred) {
+			if (target.aspect == 'none' && !target.barred && (finding_path ? in_same_space(cell2.id, target.id, state.grid, true, current_path) : true) && ((state.current_path && state.current_path.length > 0) ? target.id == state.current_path[last_used_path_cell(state, state.current_path) + 1] : true)) {
 				if (temp_closest_neighbor == null && !custom_blacklist.includes(target.id) && (path.length > 0 == path.includes(target.id)) && (state.current_path_forbidden_child ? state.current_path_forbidden_child[id1] != target.id : true) && (finding_path ? !current_path.includes(target.id) : true)) {
 					temp_closest_neighbor = target.id;
 					temp_closest_distance = distance_dict[id2][target.id];//distance_dict[target.id][id2];
@@ -1161,11 +1132,11 @@
 		state.impossible_aspects_for_current_path[id] = remove_dupes(state.impossible_aspects_for_current_path[id]);
 	}
 
-	/* Checks if two cells are not separated by barred cells */
-	function in_same_space(id1, id2, grid) {
+	/* Checks if two cells are not separated by barred cells, optionnaly separated by aspects */
+	function in_same_space(id1, id2, grid, aspects = false, current_path = []) {
 		let cell1 = get_cell_by_id(id1, grid);
 		let cell2 = get_cell_by_id(id2, grid);
-		let temp_chain = neighbor_chain(cell1.array_x, cell1.array_y, grid, true);
+		let temp_chain = neighbor_chain(cell1.array_x, cell1.array_y, grid, true, null, aspects, current_path);
 		if (inArray(temp_chain, [cell2.array_x, cell2.array_y])) {
 			return true;
 		}
@@ -1427,7 +1398,10 @@
 	}
 
 	function main_loop(){
-		if (depth == 64) {
+		if (depth == 22) {
+			console.log("debug");
+		}
+		if (depth == 198) {
 			console.log("debug");
 		}
 		console.log(`entering depth ${depth}`);
@@ -1448,45 +1422,44 @@
 				if (current_state.current_path && path_complete(current_state.current_path, current_state)) {
 					remove_excess_aspects(current_state);
 					current_state.current_path = null;
-				}
-				if (!current_state.current_path) {
-					current_path = find_path(temp_closest_cells[0], temp_closest_cells[1], current_state);
-					current_state.current_path = deepcopy(current_path);
-				}
-				var first_cell = get_cell_by_id(temp_closest_cells[0], current_state.grid);
-				var second_cell = get_cell_by_id(temp_closest_cells[1], current_state.grid);
-				if (current_state.current_path) {
-					current_state.last_move = [first_cell.id, second_cell.id];
-					var closest_neighbor = get_cell_by_id(closest_neighbor_to_cell(first_cell.id, second_cell.id, current_state, current_state.current_path), current_state.grid);
-					if (closest_neighbor) {
-						var temp_best_aspect = best_aspect(first_cell.id, second_cell.id, closest_neighbor.id, current_state);
-						if (temp_best_aspect) {
-							closest_neighbor.aspect = temp_best_aspect;
-							current_state.last_cell = closest_neighbor.id;
-							grid = current_state.grid;
-							state_history.push(deepcopy(current_state));
+				} else {
+					if (!current_state.current_path) {
+						current_path = find_path(temp_closest_cells[0], temp_closest_cells[1], current_state);
+						current_state.current_path = deepcopy(current_path);
+					}
+					var first_cell = get_cell_by_id(temp_closest_cells[0], current_state.grid);
+					var second_cell = get_cell_by_id(temp_closest_cells[1], current_state.grid);
+					if (current_state.current_path) {
+						current_state.last_move = [first_cell.id, second_cell.id];
+						var closest_neighbor = get_cell_by_id(closest_neighbor_to_cell(first_cell.id, second_cell.id, current_state, current_state.current_path), current_state.grid);
+						if (closest_neighbor) {
+							var temp_best_aspect = best_aspect(first_cell.id, second_cell.id, closest_neighbor.id, current_state);
+							if (temp_best_aspect) {
+								closest_neighbor.aspect = temp_best_aspect;
+								current_state.last_cell = closest_neighbor.id;
+								grid = current_state.grid;
+								state_history.push(deepcopy(current_state));
+							} else {
+								returning_from_bad_state = true;
+								if (first_cell.id == current_state.current_path[0]) {
+									current_state.bad_state_reason = 'invalid_path';
+								} else {
+									current_state.bad_state_reason = 'no_aspect';
+								}
+							}
 						} else {
 							returning_from_bad_state = true;
-							if (first_cell.id == current_state.current_path[0]) {
-								current_state.bad_state_reason = 'invalid_path';
-							} else {
-								current_state.bad_state_reason = 'no_aspect';
-							}
+							current_state.bad_state_reason = 'no_neighbor';
 						}
 					} else {
 						returning_from_bad_state = true;
-						current_state.bad_state_reason = 'no_neighbor';
+						current_state.bad_state_reason = 'no_path';
 					}
-				} else {
-					returning_from_bad_state = true;
-					current_state.bad_state_reason = 'no_path';
 				}
 			} else {
 				returning_from_bad_state = true;
 				current_state.bad_state_reason = 'no_closest_cells';
 			}
-			
-			
 		} else {
 			console.log(`Returning from bad state`)
 
