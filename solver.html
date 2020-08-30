@@ -10,12 +10,34 @@
 			/* border: solid 1px; */
 		}
 		body {
-			background-color: #232327;
+			/*background-color: #232327;*/
+		}
+
+		.aspect_content_wrapper {
+			width: 100px;
+			height: 60px;
+			border: solid;
+			border-color: black;
+			display: flex;
+			align-items: flex-start;
+			margin-bottom: 3%;
+		}
+
+		.aspect_content_wrapper img {
+			height: 100%;
+			padding-right: 10%;
+
+		}
+
+		.aspect_text_wrapper {
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
 		}
 		
 	</style>
 </head>
-<body>
+<body onload="/*load_aspect_selector()*/">
 	<canvas id='canvas' onclick="handle_click(event)"></canvas>
 	<br>
 	<button onclick='mouse_selection_mode()'>Selection mode (for choosing aspects)</button>
@@ -110,17 +132,30 @@
 	<br>
 	<button onclick="solve()">Solve</button>
 	<br><br>
-	<button onclick="preset(6)">preset (debug)</button>
+	<button onclick="preset(7)">preset (debug)</button>
 	<br><br>
 	<input type="number" name="Grid size" onchange="resize_grid()" id="grid_size_input" value="5">
 	<h2 id="loading">Please wait, loading aspect images...</h2>
-	<div id="gui_aspect_selector" onload="load_aspect_selector()"></div>
+	<div id="gui_aspect_selector"></div>
 	<!--<div style="overflow-x:auto;">-->
   
-	<div style="display: flex; flex-wrap: wrap; justify-content: space-evenly">
-		<div style="width: 220px; height: 60px; border: solid; border-color: white; display: flex; align-items: flex-start;">
-			<img src="./hq_images_black_all/aer.png" style="">
+	<div id="aspect_selector_gui" style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+		<!--<div class="aspect_content_wrapper">
+			<img src="./hq_images_black_all/aer.png">
+			<div class="aspect_text_wrapper" id="aspect_text_0">
+				<span id="text_0">Aer</span>
+				<span id="flavor_0">air<span>
+			</div>
 		</div>
+
+		<div class="aspect_content_wrapper">
+			<img src="./hq_images_black_all/alienis.png">
+			<div class="aspect_text_wrapper" id="aspect_text_1">
+				<span id="text_1">Alienis</span>
+				<span id="flavor_1">eldritch</span>
+			</div>
+		</div>-->
+
 	</div>
 
 	<br><br>
@@ -129,11 +164,6 @@
 <script>
 
 	var debugging = false;
-
-	function load_aspect_selector() {
-		let selector = document.getElementById('gui_aspect_selector');
-
-	}
 
 	/* detect click outside of canvas */
 	document.addEventListener('click', function(event) {
@@ -177,6 +207,55 @@
 			return true;
 		} else {
 			return expression;
+		}
+	}
+
+	function capitalize(string) {
+		return string[0].toUpperCase() + string.substring(1);
+	}
+
+	function load_aspect_selector() {
+		let aspect_flavor_dict = {
+			'aer':'air',
+			'alienis':'eldritch',
+			'aqua':'water',
+			'arbor':'none',
+			'auram':'none',
+			'bestia':'none',
+			'cognitio':'none',
+			'corpus':'none',
+			'exanimis':'none',
+			'fabrico':'none',
+			'fames':'none',
+			'gelum':'none',
+			'herba':'none',
+			'humanus':'none',
+			'ignis':'none',
+			'instrumentum':'none',
+			'iter':'none',
+			'limus':'none',
+			'lucrum':'none',
+			'lux':'none',
+			'machina':'none',
+			'messis':'none',
+			'metallum':'none'
+		}
+
+		let aspect_selector_gui = document.getElementById('aspect_selector_gui');
+		for (let i = 0; i < keylen(aspect_flavor_dict); i++) {
+			let child = '<div id="aspect_content_wrapper_' + i + '" class="aspect_content_wrapper"><img id="aspect_image_' + i + '" src="./hq_images_black_all/' + keyAtIndex(aspect_flavor_dict, i) + '.png"><div class="aspect_text_wrapper" id="aspect_text_' + i + '"><span id="text_' + i + '">' + capitalize(keyAtIndex(aspect_flavor_dict, i)) + '</span><span id="flavor_' + i + '">' + elemAtIndex(aspect_flavor_dict, i) + '<span></div></div>';
+			aspect_selector_gui.innerHTML += child;
+		}
+		
+		for (let i = 0; i < keylen(aspect_flavor_dict); i++) {
+			let text = document.getElementById('text_' + i);
+			let flavor = document.getElementById('flavor_' + i);
+			flavor.style.fontSize = document.getElementById("aspect_text_" + i).offsetWidth / document.getElementById("flavor_" + i).offsetWidth * 20 + 'px';
+			text.style.fontSize = document.getElementById("aspect_text_" + i).offsetWidth / document.getElementById("text_" + i).offsetWidth * 30 + 'px';
+			while (document.getElementById('text_' + i).offsetWidth + document.getElementById('aspect_image_' + i).offsetWidth > document.getElementById('aspect_content_wrapper_' + i).offsetWidth) {
+				text.style.fontSize = text.style.fontSize.substring(0, 2)[1] != 'p' ? (parseInt(text.style.fontSize.substring(0, 2)) - 1).toString() + 'px' : (parseInt(text.style.fontSize.substring(0, 1)) - 1).toString() + 'px';
+			}
+			
 		}
 	}
 
