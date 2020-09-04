@@ -52,7 +52,7 @@
 <body onload="load_aspect_selector()">
 	<canvas id='canvas' onclick="handle_click(event)"></canvas>
 	<br>
-	<div id="aspect_selector_gui" style="display: flex; flex-wrap: wrap; justify-content: space-around;"></div>
+	<div id="aspect_selector_gui" style="display: flex; flex-wrap: wrap; justify-content: space-around; height: 250px; overflow: scroll;"></div>
 	<br>
 	<button onclick='mouse_selection_mode()'>Selection mode (for choosing aspects)</button>
 	<br>
@@ -241,29 +241,69 @@
 	}
 
 	var aspect_flavor_dict = {
-			'aer':'air',
-			'alienis':'eldritch',
-			'aqua':'water',
-			'arbor':'none',
-			'auram':'aura',
-			'bestia':'none',
-			'cognitio':'none',
-			'corpus':'none',
-			'exanimis':'none',
-			'fabrico':'none',
-			'fames':'none',
-			'gelum':'none',
-			'herba':'none',
-			'humanus':'none',
-			'ignis':'none',
-			'instrumentum':'none',
-			'iter':'none',
-			'limus':'none',
-			'lucrum':'none',
-			'lux':'none',
-			'machina':'none',
-			'messis':'none',
-			'metallum':'none'
+		'aer':'air',
+		'alienis':'eldritch',
+		'aqua':'water',
+		'arbor':'',
+		'auram':'aura',
+		'bestia':'beast',
+		'cognitio':'mind',
+		'corpus':'none',
+		'exanimis':'undead',
+		'fabrico':'craft',
+		'fames':'hunger',
+		'gelum':'cold',
+		'herba':'plant',
+		'humanus':'man',
+		'ignis':'fire',
+		'instrumentum':'tool',
+		'iter':'none',
+		'limus':'none',
+		'lucrum':'desire',
+		'lux':'light',
+		'machina':'mechanism',
+		'messis':'none',
+		'metallum':'metal',
+		'meto':'none',
+		'mortuus':'death',
+		'motus':'motion',
+		'ordo':'order',
+		'pannus':'cloth',
+		'perditio':'entropy',
+		'perfodio':'none',
+		'permutatio':'exchange',
+		'potentia':'energy',
+		'praecantatio':'magic',
+		'sano':'health',
+		'sensus':'senses',
+		'spiritus':'soul',
+		'telum':'none',
+		'tempestas':'none',
+		'tenebrae':'darkness',
+		'terra':'earth',
+		'tutamen':'none',
+		'vacuos':'void',
+		'venenum':'poison',
+		'victus':'life',
+		'vinculum':'trap',
+		'vitium':'taint',
+		'vitreus':'crystal',
+		'volatus':'flight',
+
+		'desidia':'sloth',
+		'gula':'gluttony',
+		'infernus':'nether',
+		'invidia':'envy',
+		'ira':'wrath',
+		'luxuria':'lust',
+		'superbia':'pride',
+		'tempus':'time',
+		'electrum':'electricity',
+		'magneto':'magnetism',
+		'nebrisum':'cheatiness',
+		'radio':'radioactivity',
+		'strontio':'stupidity',
+		'terminus':'none'
 		}
 
 	function load_aspect_selector() {
@@ -290,7 +330,8 @@
 	});
 
 	document.addEventListener('mouseup', function(event) {
-		if (held_aspect != 'none' && last_highlighted_id) {
+		if (held_aspect != 'none' && last_highlighted_id != null) {
+			//console.log('last_highlighted_id: ' + last_highlighted_id);
 			let last_highlighted_cell = get_cell_by_id(last_highlighted_id, current_state.grid);
 			last_highlighted_cell.highlighted = false;
 			last_highlighted_cell.aspect = held_aspect;
@@ -312,6 +353,9 @@
 				//console.log(get_mouse_pos_canvas(canvas, event).x);
 				let distance = Math.sqrt(Math.pow(Math.abs(grid[i][j].x - mouse_x), 2) + Math.pow(Math.abs(grid[i][j].y - mouse_y), 2));
 				if (distance <= grid[i][j].side_len) {
+					if (i == 0 && j == 0) {
+						//console.log('hmmmm');
+					}
 					mouse_in_cell = true;
 					current_state.grid[i][j].highlighted = true;
 					update_cell(current_state.grid, i, j);
@@ -326,21 +370,16 @@
 						last_highlighted_id = current_state.grid[i][j].id;
 						console.log('1 last highlighted cell: ' + last_highlighted_id);
 					}
-					//draw_grid(current_state.grid);
-				} else {
-					//current_state.grid[i][j].highlighted = false;
-					//draw_grid(current_state.grid);
 				}
 			}
 		}
-		if (!mouse_in_cell && last_highlighted_id) {
+		console.log('mouse in cell: ' + mouse_in_cell);
+		if (!mouse_in_cell && last_highlighted_id != null) {
+			console.log('out of canvas');
 			let last_highlighted_cell = get_cell_by_id(last_highlighted_id, current_state.grid);
 			last_highlighted_cell.highlighted = false;
 			update_cell(current_state.grid, last_highlighted_cell.array_x, last_highlighted_cell.array_y);
 			last_highlighted_id = null;
-		}
-		if (holding_aspect) {
-			
 		}
 	});
 
