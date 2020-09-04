@@ -11,10 +11,13 @@
 		}
 		body {
 			/*background-color: #232327;*/
+			font-family: Helvetica Neue, Helvetica;
 		}
 
 		.aspect_content_wrapper {
-			width: 100px;
+			/*width: 100px;
+			height: 60px;*/
+			width: 10%;
 			height: 60px;
 			border: solid;
 			border-color: black;
@@ -24,9 +27,14 @@
 		}
 
 		.aspect_content_wrapper img {
-			height: 100%;
+			/*height: 100%;*/
+			width: 35%;
 			padding-right: 10%;
-
+			-webkit-user-drag: none;
+			-khtml-user-drag: none;
+			-moz-user-drag: none;
+			-o-user-drag: none;
+			user-drag: none;
 		}
 
 		.aspect_text_wrapper {
@@ -34,11 +42,17 @@
 			flex-direction: column;
 			justify-content: space-between;
 		}
+
+		#aspect_selector_gui {
+			width: 95%;
+		}
 		
 	</style>
 </head>
-<body onload="/*load_aspect_selector()*/">
+<body onload="load_aspect_selector()">
 	<canvas id='canvas' onclick="handle_click(event)"></canvas>
+	<br>
+	<div id="aspect_selector_gui" style="display: flex; flex-wrap: wrap; justify-content: space-around;"></div>
 	<br>
 	<button onclick='mouse_selection_mode()'>Selection mode (for choosing aspects)</button>
 	<br>
@@ -121,13 +135,13 @@
 
 		<option value="terminus">Terminus</option>
 
-		<option value="none">===============</option>
+		<!--<option value="none">===============</option>
 
 		<option value="sagrausten">Sagrausten</option>
 		<option value="slusium">Slusium</option>
 		<option value="xablum">Xablum</option>
 		<option value="xenil">Xenil</option>
-		<option value="zetralt">Zetralt</option>
+		<option value="zetralt">Zetralt</option>-->
 	</select>
 	<br>
 	<button onclick="solve()">Solve</button>
@@ -139,24 +153,7 @@
 	<div id="gui_aspect_selector"></div>
 	<!--<div style="overflow-x:auto;">-->
   
-	<div id="aspect_selector_gui" style="display: flex; flex-wrap: wrap; justify-content: space-around;">
-		<!--<div class="aspect_content_wrapper">
-			<img src="./hq_images_black_all/aer.png">
-			<div class="aspect_text_wrapper" id="aspect_text_0">
-				<span id="text_0">Aer</span>
-				<span id="flavor_0">air<span>
-			</div>
-		</div>
-
-		<div class="aspect_content_wrapper">
-			<img src="./hq_images_black_all/alienis.png">
-			<div class="aspect_text_wrapper" id="aspect_text_1">
-				<span id="text_1">Alienis</span>
-				<span id="flavor_1">eldritch</span>
-			</div>
-		</div>-->
-
-	</div>
+	<div style="position: fixed; z-index: -1; top: 0; left: 0;" id="cursor_placeholder"></div>
 
 	<br><br>
 </body>
@@ -164,6 +161,10 @@
 <script>
 
 	var debugging = false;
+
+	var holding_aspect = false;
+	var held_aspect = 'none';
+	var last_highlighted_id = null;
 
 	/* detect click outside of canvas */
 	document.addEventListener('click', function(event) {
@@ -178,6 +179,14 @@
 	var image_cache = {};
 
 	/* util functions, going into separate file later */
+
+	function get_mouse_pos_canvas(canvas, evt) {
+		let rect = canvas.getBoundingClientRect();
+		return {
+			x: (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
+			y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
+		}
+	}
 
 	/* degrees to radians */
 	function to_rad(deg) {
@@ -214,13 +223,29 @@
 		return string[0].toUpperCase() + string.substring(1);
 	}
 
-	function load_aspect_selector() {
-		let aspect_flavor_dict = {
+	/*function text_width(text, font) {
+	  	let canvas = displayTextWidth.canvas || (displayTextWidth.canvas = document.createElement("canvas"));
+	  	let context = canvas.getContext("2d");
+	  	context.font = font;
+	  	let metrics = context.measureText(text);
+	  	return metrics.width;
+	}*/
+
+	function text_width(text, font) {
+		let text_canvas = document.createElement('canvas');
+		let text_ctx = text_canvas.getContext('2d');
+		text_ctx.font = font;
+		let text_width = text_ctx.measureText(text).width;
+		text_canvas.remove();
+		return text_width;
+	}
+
+	var aspect_flavor_dict = {
 			'aer':'air',
 			'alienis':'eldritch',
 			'aqua':'water',
 			'arbor':'none',
-			'auram':'none',
+			'auram':'aura',
 			'bestia':'none',
 			'cognitio':'none',
 			'corpus':'none',
@@ -241,23 +266,101 @@
 			'metallum':'none'
 		}
 
+	function load_aspect_selector() {
 		let aspect_selector_gui = document.getElementById('aspect_selector_gui');
 		for (let i = 0; i < keylen(aspect_flavor_dict); i++) {
 			let child = '<div id="aspect_content_wrapper_' + i + '" class="aspect_content_wrapper"><img id="aspect_image_' + i + '" src="./hq_images_black_all/' + keyAtIndex(aspect_flavor_dict, i) + '.png"><div class="aspect_text_wrapper" id="aspect_text_' + i + '"><span id="text_' + i + '">' + capitalize(keyAtIndex(aspect_flavor_dict, i)) + '</span><span id="flavor_' + i + '">' + elemAtIndex(aspect_flavor_dict, i) + '<span></div></div>';
 			aspect_selector_gui.innerHTML += child;
 		}
 		
+		on_resize();
+	}
+
+	document.addEventListener('mousedown', function(event) {
+		if (event.target.id.startsWith('aspect_image_')) {
+			console.log('clicked ' + keyAtIndex(aspect_flavor_dict, event.target.id.substring(13)));
+			document.body.style.cursor /*document.getElementById('aspect_image_0').style.cursor*/ = "url('./cursors/" + keyAtIndex(aspect_flavor_dict, event.target.id.substring(13)) + '.png' + "') 15 15, pointer";
+			console.log(document.body.style.cursor);
+			holding_aspect = true;
+			held_aspect = keyAtIndex(aspect_flavor_dict, event.target.id.substring(13));
+			//console.log('<img id="aspect_cursor" src="./hq_images_black_all/' + keyAtIndex(aspect_flavor_dict, event.target.id.substring(13)) + '">');
+			/*let aspect_cursor = '<img id="aspect_cursor" style="width: ' + Math.trunc(current_state.grid[0][0].side_len) * 2 + 'px;" src="./hq_images_black_all/' + keyAtIndex(aspect_flavor_dict, event.target.id.substring(13)) + '.png">';
+			document.getElementById('cursor_placeholder').innerHTML = aspect_cursor;*/
+		}
+	});
+
+	document.addEventListener('mouseup', function(event) {
+		if (held_aspect != 'none' && last_highlighted_id) {
+			let last_highlighted_cell = get_cell_by_id(last_highlighted_id, current_state.grid);
+			last_highlighted_cell.highlighted = false;
+			last_highlighted_cell.aspect = held_aspect;
+			update_cell(current_state.grid, last_highlighted_cell.array_x, last_highlighted_cell.array_y);
+		}
+		document.body.style.cursor = '';
+		holding_aspect = false;
+		held_aspect = 'none';
+	});
+
+	document.addEventListener('mousemove', function(event) {
+		let mouse_in_cell = false;
+		for (var i = 0; i < grid.length; i++) {
+			for (var j = 0; j < grid[i].length; j++) {
+				//console.debug(grid[i][j].y);
+				console.debug(`acceptable distance: ${grid[i][j].side_len}`);
+				let mouse_x = get_mouse_pos_canvas(canvas, event).x;//event.clientX;
+				let mouse_y = get_mouse_pos_canvas(canvas, event).y;//event.clientY;
+				//console.log(get_mouse_pos_canvas(canvas, event).x);
+				let distance = Math.sqrt(Math.pow(Math.abs(grid[i][j].x - mouse_x), 2) + Math.pow(Math.abs(grid[i][j].y - mouse_y), 2));
+				if (distance <= grid[i][j].side_len) {
+					mouse_in_cell = true;
+					current_state.grid[i][j].highlighted = true;
+					update_cell(current_state.grid, i, j);
+					if (last_highlighted_id == null) {
+						last_highlighted_id = current_state.grid[i][j].id;
+						console.log('0 last highlighted cell: ' + last_highlighted_id);
+					}
+					if (current_state.grid[i][j].id != last_highlighted_id) {
+						let last_highlighted_cell = get_cell_by_id(last_highlighted_id, current_state.grid);
+						last_highlighted_cell.highlighted = false;
+						update_cell(current_state.grid, last_highlighted_cell.array_x, last_highlighted_cell.array_y);
+						last_highlighted_id = current_state.grid[i][j].id;
+						console.log('1 last highlighted cell: ' + last_highlighted_id);
+					}
+					//draw_grid(current_state.grid);
+				} else {
+					//current_state.grid[i][j].highlighted = false;
+					//draw_grid(current_state.grid);
+				}
+			}
+		}
+		if (!mouse_in_cell && last_highlighted_id) {
+			let last_highlighted_cell = get_cell_by_id(last_highlighted_id, current_state.grid);
+			last_highlighted_cell.highlighted = false;
+			update_cell(current_state.grid, last_highlighted_cell.array_x, last_highlighted_cell.array_y);
+			last_highlighted_id = null;
+		}
+		if (holding_aspect) {
+			
+		}
+	});
+
+	function on_resize() {
 		for (let i = 0; i < keylen(aspect_flavor_dict); i++) {
 			let text = document.getElementById('text_' + i);
 			let flavor = document.getElementById('flavor_' + i);
-			flavor.style.fontSize = document.getElementById("aspect_text_" + i).offsetWidth / document.getElementById("flavor_" + i).offsetWidth * 20 + 'px';
-			text.style.fontSize = document.getElementById("aspect_text_" + i).offsetWidth / document.getElementById("text_" + i).offsetWidth * 30 + 'px';
-			while (document.getElementById('text_' + i).offsetWidth + document.getElementById('aspect_image_' + i).offsetWidth > document.getElementById('aspect_content_wrapper_' + i).offsetWidth) {
+			let image = document.getElementById('aspect_image_' + i);
+			flavor.style.fontSize = document.getElementById("aspect_text_" + i).offsetWidth / flavor.offsetWidth * 20 + 'px';
+			text.style.fontSize = document.getElementById("aspect_text_" + i).offsetWidth / text.offsetWidth * 30 + 'px';
+			while (text_width(text.innerText, text.style.fontSize + ' Helvetica Neue, Helvetica') + image.offsetWidth > document.getElementById('aspect_content_wrapper_' + i).offsetWidth - 5 && text.style.fontSize != '1px') {
 				text.style.fontSize = text.style.fontSize.substring(0, 2)[1] != 'p' ? (parseInt(text.style.fontSize.substring(0, 2)) - 1).toString() + 'px' : (parseInt(text.style.fontSize.substring(0, 1)) - 1).toString() + 'px';
 			}
-			
+			while (text_width(flavor.innerText, flavor.style.fontSize + ' Helvetica Neue, Helvetica') + image.offsetWidth > document.getElementById('aspect_content_wrapper_' + i).offsetWidth - 5 && flavor.style.fontSize != '1px') {
+				flavor.style.fontSize = flavor.style.fontSize.substring(0, 2)[1] != 'p' ? (parseInt(flavor.style.fontSize.substring(0, 2)) - 1).toString() + 'px' : (parseInt(flavor.style.fontSize.substring(0, 1)) - 1).toString() + 'px';
+			}
 		}
 	}
+
+	window.onresize = on_resize;
 
 	var canvas = document.getElementById('canvas');
 	var ctx = canvas.getContext('2d');
@@ -275,6 +378,7 @@
 			this.barred = barred;
 			this.side_len = side_len;
 			this.selected = false;
+			this.highlighted = false;
 			this.img;
 			this.base = false;
 			this.id = id;
@@ -323,8 +427,8 @@
 	}
 
 	function handle_click(event) {
-		var mouse_x = event.clientX;
-		var mouse_y = event.clientY;
+		let mouse_x = get_mouse_pos_canvas(canvas, event).x;//event.clientX;
+		let mouse_y = get_mouse_pos_canvas(canvas, event).y;//event.clientY;
 		var coords = "X coords: " + mouse_x + ", Y coords: " + mouse_y;
 		console.debug(coords);
 		var found = false;
@@ -469,7 +573,9 @@
 					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2, undefined, '#000000');
 					console.debug('filling');
 				} else if (grid[i][j].selected) {
-					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#d8faff');
+					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#baf6ff');
+				} else if (grid[i][j].highlighted) {
+					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#dcf8fc');
 				} else {
 					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2);
 				}
@@ -483,6 +589,26 @@
 		}
 		if (debugging) {
 			draw_hex_ids(grid);
+		}
+	}
+
+	function update_cell(grid, i, j) {
+		draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2, '#ffffff', '#ffffff');
+		if (grid[i][j].barred) {
+			draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2, undefined, '#000000');
+			console.debug('filling');
+		} else if (grid[i][j].selected) {
+			draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#baf6ff');
+		} else if (grid[i][j].highlighted) {
+			draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#dcf8fc');
+		} else {
+			draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2);
+		}
+		if (!grid[i][j].barred && grid[i][j].aspect != 'none') {
+			console.debug('drawing image');
+			img_size = grid[i][j].side_len * 1.2;
+			//ctx.drawImage(grid[i][j].img, grid[i][j].x - img_size / 2, grid[i][j].y - img_size / 2, img_size, img_size);
+			ctx.drawImage(image_cache[grid[i][j].aspect], grid[i][j].x - img_size / 2, grid[i][j].y - img_size / 2, img_size, img_size);
 		}
 	}
 
@@ -678,12 +804,14 @@
 		'nebrisum':['perfodio', 'lucrum'],
 		'radio':['lux','potentia'],
 		'strontio':['perditio','cognitio'],
-		'terminus':['alienis','lucrum'],
+		'terminus':['alienis','lucrum']
+		/* Disabled in GT:NH, removed from GT++ too */
+		/*,
 		'sagrausten':['xenil','radio'],
 		'slusium':['xenil','nebrisum'],
 		'xablum':['xenil','slusium'],
 		'xenil':['magneto','radio'],
-		'zetralt':['xablum','auram']
+		'zetralt':['xablum','auram']*/
 	};
 
 	/* Image cache (for debugging) */
