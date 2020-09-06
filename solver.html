@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>GTNH TC Research Solver</title>
+	<title>TC Research Solver</title>
 	<!--Thaumcraft research minigame solver using heuristics and bruteforce-->
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="icon" href="./ressources/images/favicon.png">
+	<link rel="stylesheet" type="text/css" href="./ressources/css/mainStylesheet.css"/>
 	<style>
 		#canvas {
 			/* border: solid 1px; */
@@ -92,25 +94,29 @@
 	</style>
 </head>
 <body onload="load_aspect_selector()">
-	<canvas id='canvas' onclick="handle_click(event)"></canvas>
-	<br>
-	<div id="aspect_selector_gui" style="display: flex; flex-wrap: wrap; justify-content: space-around; height: 250px; overflow: scroll; border: solid; padding-top: 10px;"></div>
-	<br>
-	<button id="barring_button" class="myButton" onclick='mouse_barring_mode()'>Barring mode (bar the cells that aren't available)</button>
-	<br>
-	<button class="myButton" onclick="solve()">Solve</button>
-	<br>
-	<button class="myButton" onclick="reset()">Reset</button>
-	<br>
-	<button class="myButton" onclick="preset(7)">Preset (demo)</button>
-	<br><br>
-	<form>
-		<label for="grid_size_input">Grid size: </label>
-		<input class="css-input" type="number" name="Grid size" onchange="resize_grid()" id="grid_size_input" value="5">
-	</form>
-	<h2 id="loading">Please wait, loading aspect images...</h2>
-	<div id="gui_aspect_selector"></div>
-	<br><br>
+	<div id="wrapper">
+		<div class="article">
+			<canvas id='canvas' onclick="handle_click(event)"></canvas>
+			<br>
+			<div id="aspect_selector_gui" style="display: flex; flex-wrap: wrap; justify-content: space-around; height: 250px; overflow: scroll; border: solid; padding-top: 10px;"></div>
+			<br>
+			<button id="barring_button" class="myButton" onclick='mouse_barring_mode()'>Barring mode (bar the cells that aren't available)</button>
+			<br>
+			<button class="myButton" onclick="solve()">Solve</button>
+			<br>
+			<button class="myButton" onclick="reset()">Reset</button>
+			<br>
+			<button class="myButton" onclick="preset(7)">Preset (demo)</button>
+			<br><br>
+			<form>
+				<label for="grid_size_input">Grid size: </label>
+				<input class="css-input" type="number" name="Grid size" onchange="resize_grid()" id="grid_size_input" value="5">
+			</form>
+			<h2 id="loading">Please wait, loading aspect images...</h2>
+			<div id="gui_aspect_selector"></div>
+			<br><br>
+		</div>
+	</div>
 </body>
 
 <script>
@@ -120,6 +126,7 @@
 	var holding_aspect = false;
 	var held_aspect = 'none';
 	var last_highlighted_id = null;
+	var body_color = '#1C1D1F';
 
 	/* detect click outside of canvas */
 	document.addEventListener('click', function(event) {
@@ -264,11 +271,15 @@
 	function load_aspect_selector() {
 		let aspect_selector_gui = document.getElementById('aspect_selector_gui');
 		for (let i = 0; i < keylen(aspect_flavor_dict); i++) {
-			let child = '<div id="aspect_content_wrapper_' + i + '" class="aspect_content_wrapper"><img id="aspect_image_' + i + '" src="./ressources/images/hq_images_black_all/' + keyAtIndex(aspect_flavor_dict, i) + '.png"><div class="aspect_text_wrapper" id="aspect_text_' + i + '"><span id="text_' + i + '">' + capitalize(keyAtIndex(aspect_flavor_dict, i)) + '</span><span id="flavor_' + i + '">' + elemAtIndex(aspect_flavor_dict, i) + '<span></div></div>';
+			let onload = '';
+			if (i == keylen(aspect_flavor_dict) - 1) {
+				onload = ' onload = "on_resize()"';
+			}
+			let child = '<div id="aspect_content_wrapper_' + i + '" class="aspect_content_wrapper"><img' + onload + ' id="aspect_image_' + i + '" src="./ressources/images/hq_images_white_all/' + keyAtIndex(aspect_flavor_dict, i) + '.png"><div class="aspect_text_wrapper" id="aspect_text_' + i + '"><span id="text_' + i + '">' + capitalize(keyAtIndex(aspect_flavor_dict, i)) + '</span><span id="flavor_' + i + '">' + elemAtIndex(aspect_flavor_dict, i) + '<span></div></div>';
 			aspect_selector_gui.innerHTML += child;
 		}
 		
-		on_resize();
+		//on_resize();
 	}
 
 	document.addEventListener('mousedown', function(event) {
@@ -360,7 +371,7 @@
 	var ctx = canvas.getContext('2d');
 
 	function white_canvas() {
-		ctx.fillStyle = "white";
+		ctx.fillStyle = body_color;
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 	}
 
@@ -599,7 +610,7 @@
 	}
 
 	function update_cell(grid, i, j) {
-		draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2, '#ffffff', '#ffffff');
+		draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len * 0.9, 2, '#ffffff', '#ffffff');
 		if (grid[i][j].barred) {
 			draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2, undefined, '#000000');
 			console.debug('filling');
