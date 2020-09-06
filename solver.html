@@ -264,7 +264,7 @@
 	function load_aspect_selector() {
 		let aspect_selector_gui = document.getElementById('aspect_selector_gui');
 		for (let i = 0; i < keylen(aspect_flavor_dict); i++) {
-			let child = '<div id="aspect_content_wrapper_' + i + '" class="aspect_content_wrapper"><img id="aspect_image_' + i + '" src="./hq_images_black_all/' + keyAtIndex(aspect_flavor_dict, i) + '.png"><div class="aspect_text_wrapper" id="aspect_text_' + i + '"><span id="text_' + i + '">' + capitalize(keyAtIndex(aspect_flavor_dict, i)) + '</span><span id="flavor_' + i + '">' + elemAtIndex(aspect_flavor_dict, i) + '<span></div></div>';
+			let child = '<div id="aspect_content_wrapper_' + i + '" class="aspect_content_wrapper"><img id="aspect_image_' + i + '" src="./ressources/images/hq_images_black_all/' + keyAtIndex(aspect_flavor_dict, i) + '.png"><div class="aspect_text_wrapper" id="aspect_text_' + i + '"><span id="text_' + i + '">' + capitalize(keyAtIndex(aspect_flavor_dict, i)) + '</span><span id="flavor_' + i + '">' + elemAtIndex(aspect_flavor_dict, i) + '<span></div></div>';
 			aspect_selector_gui.innerHTML += child;
 		}
 		
@@ -274,7 +274,7 @@
 	document.addEventListener('mousedown', function(event) {
 		if (event.target.id.startsWith('aspect_image_')) {
 			//console.log('clicked ' + keyAtIndex(aspect_flavor_dict, event.target.id.substring(13)));
-			document.body.style.cursor /*document.getElementById('aspect_image_0').style.cursor*/ = "url('./cursors/" + keyAtIndex(aspect_flavor_dict, event.target.id.substring(13)) + '.png' + "') 15 15, pointer";
+			document.body.style.cursor /*document.getElementById('aspect_image_0').style.cursor*/ = "url('./ressources/images/cursors/" + keyAtIndex(aspect_flavor_dict, event.target.id.substring(13)) + '.png' + "') 15 15, pointer";
 			//console.log(document.body.style.cursor);
 			holding_aspect = true;
 			held_aspect = keyAtIndex(aspect_flavor_dict, event.target.id.substring(13));
@@ -825,7 +825,7 @@
 	var image_count = 0;
 	for (var i = 0; i < keylen(aspect_table); i++) {
 		let temp_img = new Image();
-		temp_img.src = './hq_images_black_all/' + keyAtIndex(aspect_table, i) + '.png';
+		temp_img.src = './ressources/images/hq_images_black_all/' + keyAtIndex(aspect_table, i) + '.png';
 		image_cache[keyAtIndex(aspect_table, i)] = temp_img;
 		temp_img.addEventListener("load", function () {
 			image_count++;
