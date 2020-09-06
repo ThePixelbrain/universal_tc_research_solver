@@ -38,11 +38,14 @@
 				<li>Drag aspects on the grid to recreate a research note. Drag the images, not the box or text.</li>
 				<li>You can remove aspects from the grid by simply clicking on them.</li>
 				<li>Use the "Barring mode" button to remove any tiles that can not be used.</li>
+				<li>Toggle the availabilty of an aspect by clicking its text.</li>
 				<li>Click "Solve" and wait. A backtracing algorithm will make your poor CPU work.</li>
 				<li>If you feel like it takes too long, or some kind of error message pops up *on the site, not a browser popup (!)*, congratulations! You probably discovered a bug! Report your initial aspect setup here: <a href="https://github.com/jackowski626/universal_tc_research_solver/issues" target="_blank">github.com/jackowski626/universal_tc_research_solver/issues</a></li>
 			</ul>
 			<h2>Where can I send my precious suggestions?</h2>
 			<p>Do it here: <a href="https://github.com/jackowski626/universal_tc_research_solver/issues" target="_blank">github.com/jackowski626/universal_tc_research_solver/issues</a></p>
+			<h2>What is your favorite part?</h2>
+			<p>Stardust Crusaders.</p>
 		</div>
 	</div>
 </body>
@@ -112,14 +115,6 @@
 		return string[0].toUpperCase() + string.substring(1);
 	}
 
-	/*function text_width(text, font) {
-	  	let canvas = displayTextWidth.canvas || (displayTextWidth.canvas = document.createElement("canvas"));
-	  	let context = canvas.getContext("2d");
-	  	context.font = font;
-	  	let metrics = context.measureText(text);
-	  	return metrics.width;
-	}*/
-
 	function text_width(text, font) {
 		let text_canvas = document.createElement('canvas');
 		let text_ctx = text_canvas.getContext('2d');
@@ -133,7 +128,7 @@
 		'aer':'air',
 		'alienis':'eldritch',
 		'aqua':'water',
-		'arbor':'',
+		'arbor':'t r e e',
 		'auram':'aura',
 		'bestia':'beast',
 		'cognitio':'mind',
@@ -194,6 +189,11 @@
 		'terminus':'apocalypse'
 		}
 
+	var enabled_flavor_dict = {};
+	for (let i = 0; i < keylen(aspect_flavor_dict); i++) {
+		enabled_flavor_dict[keyAtIndex(aspect_flavor_dict, i)] = true;
+	}
+
 	function load_aspect_selector() {
 		let aspect_selector_gui = document.getElementById('aspect_selector_gui');
 		for (let i = 0; i < keylen(aspect_flavor_dict); i++) {
@@ -201,7 +201,7 @@
 			if (i == keylen(aspect_flavor_dict) - 1) {
 				onload = ' onload = "on_resize()"';
 			}
-			let child = '<div id="aspect_content_wrapper_' + i + '" class="aspect_content_wrapper"><img' + onload + ' id="aspect_image_' + i + '" src="./ressources/images/hq_images_white_all/' + keyAtIndex(aspect_flavor_dict, i) + '.png"><div class="aspect_text_wrapper" id="aspect_text_' + i + '"><span id="text_' + i + '">' + capitalize(keyAtIndex(aspect_flavor_dict, i)) + '</span><span id="flavor_' + i + '">' + elemAtIndex(aspect_flavor_dict, i) + '<span></div></div>';
+			let child = '<div id="aspect_content_wrapper_' + i + '" class="aspect_content_wrapper"><img' + onload + ' id="aspect_image_' + i + '" src="./ressources/images/hq_images_white_all/' + keyAtIndex(aspect_flavor_dict, i) + '.png"><div class="aspect_text_wrapper" id="aspect_text_' + i + '" onclick = "toggle_availability(' + i + ')"><span id="text_' + i + '">' + capitalize(keyAtIndex(aspect_flavor_dict, i)) + '<br></span><span id="flavor_' + i + '">' + elemAtIndex(aspect_flavor_dict, i) + '</span></div></div>';
 			aspect_selector_gui.innerHTML += child;
 		}
 		
@@ -237,10 +237,10 @@
 
 	document.addEventListener('mousemove', function(event) {
 		let mouse_in_cell = false;
-		for (var i = 0; i < grid.length; i++) {
-			for (var j = 0; j < grid[i].length; j++) {
+		for (let i = 0; i < grid.length; i++) {
+			for (let j = 0; j < grid[i].length; j++) {
 				//console.debug(grid[i][j].y);
-				console.debug(`acceptable distance: ${grid[i][j].side_len}`);
+				//console.debug(`acceptable distance: ${grid[i][j].side_len}`);
 				let mouse_x = get_mouse_pos_canvas(canvas, event).x;//event.clientX;
 				let mouse_y = get_mouse_pos_canvas(canvas, event).y;//event.clientY;
 				//console.log(get_mouse_pos_canvas(canvas, event).x);
@@ -281,13 +281,14 @@
 			let text = document.getElementById('text_' + i);
 			let flavor = document.getElementById('flavor_' + i);
 			let image = document.getElementById('aspect_image_' + i);
-			flavor.style.fontSize = document.getElementById("aspect_text_" + i).offsetWidth / flavor.offsetWidth * 20 + 'px';
-			text.style.fontSize = document.getElementById("aspect_text_" + i).offsetWidth / text.offsetWidth * 30 + 'px';
-			while (text_width(text.innerText, text.style.fontSize + ' Helvetica Neue, Helvetica') + image.offsetWidth > document.getElementById('aspect_content_wrapper_' + i).offsetWidth - 5 && text.style.fontSize != '1px') {
-				text.style.fontSize = text.style.fontSize.substring(0, 2)[1] != 'p' ? (parseInt(text.style.fontSize.substring(0, 2)) - 1).toString() + 'px' : (parseInt(text.style.fontSize.substring(0, 1)) - 1).toString() + 'px';
+			flavor.style.fontSize = "1em";//document.getElementById("aspect_text_" + i).offsetWidth / flavor.offsetWidth * 20 + 'px';
+			text.style.fontSize = "1em";//document.getElementById("aspect_text_" + i).offsetWidth / text.offsetWidth * 30 + 'px';
+			//while (/*text_width(text.innerText, text.style.fontSize + ' Helvetica Neue, Helvetica')*/text.offsetWidth + image.offsetWidth > document.getElementById('aspect_content_wrapper_' + i).offsetWidth - 5 && text.style.fontSize != '0.1em') {
+			while (text.offsetWidth + image.offsetWidth > document.getElementById('aspect_content_wrapper_' + i).offsetWidth / 1.1 && text.style.fontSize != '0.1em') {
+				text.style.fontSize = text.style.fontSize.substring(0, 2)[1] == 'e' ? (parseFloat(text.style.fontSize.substring(0, 1)) - 0.1).toString() + 'em' : (parseFloat(text.style.fontSize.substring(0, 3)) - 0.1).toString() + 'em';
 			}
-			while (text_width(flavor.innerText, flavor.style.fontSize + ' Helvetica Neue, Helvetica') + image.offsetWidth > document.getElementById('aspect_content_wrapper_' + i).offsetWidth - 5 && flavor.style.fontSize != '1px') {
-				flavor.style.fontSize = flavor.style.fontSize.substring(0, 2)[1] != 'p' ? (parseInt(flavor.style.fontSize.substring(0, 2)) - 1).toString() + 'px' : (parseInt(flavor.style.fontSize.substring(0, 1)) - 1).toString() + 'px';
+			while (flavor.offsetWidth + image.offsetWidth > document.getElementById('aspect_content_wrapper_' + i).offsetWidth / 1.1 && flavor.style.fontSize != '0.1em') {
+				flavor.style.fontSize = flavor.style.fontSize.substring(0, 2)[1] == 'e' ? (parseFloat(flavor.style.fontSize.substring(0, 1)) - 0.1).toString() + 'em' : (parseFloat(flavor.style.fontSize.substring(0, 3)) - 0.1).toString() + 'em';
 			}
 		}
 	}
@@ -374,17 +375,17 @@
 		let mouse_x = get_mouse_pos_canvas(canvas, event).x;//event.clientX;
 		let mouse_y = get_mouse_pos_canvas(canvas, event).y;//event.clientY;
 		var coords = "X coords: " + mouse_x + ", Y coords: " + mouse_y;
-		console.debug(coords);
+		//console.debug(coords);
 		var found = false;
 		/* loop through all cells in grid and find which one is nearest to the click */
-		for (var i = 0; i < grid.length; i++) {
-			for (var j = 0; j < grid[i].length; j++) {
+		for (let i = 0; i < grid.length; i++) {
+			for (let j = 0; j < grid[i].length; j++) {
 				//console.debug(grid[i][j].y);
-				console.debug(`acceptable distance: ${grid[i][j].side_len}`);
-				distance = Math.sqrt(Math.pow(Math.abs(grid[i][j].x - mouse_x), 2) + Math.pow(Math.abs(grid[i][j].y - mouse_y), 2));
+				//console.debug(`acceptable distance: ${grid[i][j].side_len}`);
+				let distance = Math.sqrt(Math.pow(Math.abs(grid[i][j].x - mouse_x), 2) + Math.pow(Math.abs(grid[i][j].y - mouse_y), 2));
 				if (distance <= grid[i][j].side_len) {
 					found = true;
-					console.debug(`found at ${parseFloat(grid[i][j].x).toFixed(2)}, ${parseFloat(grid[i][j].y).toFixed(2)} at distance ${distance}`);
+					//console.debug(`found at ${parseFloat(grid[i][j].x).toFixed(2)}, ${parseFloat(grid[i][j].y).toFixed(2)} at distance ${distance}`);
 					if (mouse_mode == 'barring') {
 						if (grid[i][j].barred) {
 							grid[i][j].barred = false;
@@ -438,7 +439,7 @@
 
 	/* Drawing hexagon at coords */
 	function draw_hexagon(x, y, side_len, lineWidth = 1, lineColor = '#000000', fillColor = '#FFFFFF', pointing_up = false) {
-		console.debug("side_len: " + side_len)
+		//console.debug("side_len: " + side_len)
 		side_len -= Math.ceil(lineWidth / 2) + 1;
 		var triangle_height = Math.sqrt(Math.pow(side_len, 2) - Math.pow(side_len / 2, 2));
 		var points;
@@ -452,7 +453,7 @@
 		ctx.strokeStyle = lineColor;
 		ctx.fillStyle = fillColor;
 		ctx.moveTo(points[5][0], points[5][1]);
-		for (var i = 0; i < points.length; i++) {
+		for (let i = 0; i < points.length; i++) {
 			ctx.lineTo(points[i][0], points[i][1]);
 		}
 		ctx.fill();
@@ -468,16 +469,16 @@
 
 		var hex_num_vertical = grid_size * 2 - 1;
 		var blank_num_vertical = hex_num_vertical - 1;
-		console.debug("hex_num_vertical: " + hex_num_vertical + ", blank_num_vertical: " + blank_num_vertical)
+		//console.debug("hex_num_vertical: " + hex_num_vertical + ", blank_num_vertical: " + blank_num_vertical)
 		let blank_ratio = 1/10;
 		let blank_len = Math.floor(canvas.height * blank_ratio / (hex_num_vertical * blank_ratio + blank_num_vertical));
 
 		let small_hex_len_vertical = canvas.height / (hex_num_vertical + blank_num_vertical * blank_ratio);//canvas.height / hex_num_vertical - blank_len / hex_num_vertical;
 		let small_hex_len = small_hex_len_vertical / 2 / Math.cos(to_rad(30));
 
-		console.debug(`blank_len: ${blank_len}, small_hex_len_vertical: ${small_hex_len_vertical}, small_hex_len: ${small_hex_len}`);
+		//console.debug(`blank_len: ${blank_len}, small_hex_len_vertical: ${small_hex_len_vertical}, small_hex_len: ${small_hex_len}`);
 
-		/*for (var i = 0; i < hex_num_vertical; i++) {
+		/*for (let i = 0; i < hex_num_vertical; i++) {
 			draw_hexagon(canvas.width / 2, i * (small_hex_len_vertical + blank_len) + small_hex_len_vertical / 2, small_hex_len, 2);
 		}*/
 
@@ -499,7 +500,7 @@
 				num_of_cells_in_column = column_num - i + grid_size - 1;
 				shift_x = -(column_num - num_of_cells_in_column) * (1.5 * small_hex_len + blank_len);
 			}
-			console.debug("num of cells: " + num_of_cells_in_column);
+			//console.debug("num of cells: " + num_of_cells_in_column);
 
 			/* each row going from the center, is shifted by half a hexagone per row */
 			let shift_y = (column_num - num_of_cells_in_column) * (small_hex_len_vertical / 2 + blank_len / 2);//(column_num - num_of_cells_in_column) * small_hex_len_vertical / 2 + blank_len / 2;
@@ -515,13 +516,13 @@
 	}
 
 	function draw_grid(grid) {
-		console.debug('drawing grid');
+		//console.debug('drawing grid');
 		white_canvas();
-		for (var i = 0; i < grid.length; i++) {
-			for (var j = 0; j < grid[i].length; j++) {
+		for (let i = 0; i < grid.length; i++) {
+			for (let j = 0; j < grid[i].length; j++) {
 				if (grid[i][j].barred) {
 					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2, undefined, '#000000');
-					console.debug('filling');
+					//console.debug('filling');
 				} else if (grid[i][j].selected) {
 					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#baf6ff');
 				} else if (grid[i][j].highlighted) {
@@ -530,7 +531,7 @@
 					draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2);
 				}
 				if (!grid[i][j].barred && grid[i][j].aspect != 'none') {
-					console.debug('drawing image');
+					//console.debug('drawing image');
 					img_size = grid[i][j].side_len * 1.2;
 					//ctx.drawImage(grid[i][j].img, grid[i][j].x - img_size / 2, grid[i][j].y - img_size / 2, img_size, img_size);
 					ctx.drawImage(image_cache[grid[i][j].aspect], grid[i][j].x - img_size / 2, grid[i][j].y - img_size / 2, img_size, img_size);
@@ -546,7 +547,7 @@
 		draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len * 0.9, 2, '#ffffff', '#ffffff');
 		if (grid[i][j].barred) {
 			draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2, undefined, '#000000');
-			console.debug('filling');
+			//console.debug('filling');
 		} else if (grid[i][j].selected) {
 			draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#baf6ff');
 		} else if (grid[i][j].highlighted) {
@@ -559,7 +560,7 @@
 			draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2);
 		}
 		if (!grid[i][j].barred && grid[i][j].aspect != 'none') {
-			console.debug('drawing image');
+			//console.debug('drawing image');
 			img_size = grid[i][j].side_len * 1.2;
 			//ctx.drawImage(grid[i][j].img, grid[i][j].x - img_size / 2, grid[i][j].y - img_size / 2, img_size, img_size);
 			ctx.drawImage(image_cache[grid[i][j].aspect], grid[i][j].x - img_size / 2, grid[i][j].y - img_size / 2, img_size, img_size);
@@ -568,9 +569,9 @@
 
 	function draw_debug_grid(grid) {
 		console.log("===================");
-		for (var i = 0; i < grid.length; i++) {
+		for (let i = 0; i < grid.length; i++) {
 			var temp_str = "";
-			for (var j = 0; j < grid[i].length; j++) {
+			for (let j = 0; j < grid[i].length; j++) {
 				if (j < grid[i].length - 1) {
 					temp_str += grid[i][j].id + ": " + grid[i][j].aspect + ", ";
 				} else {
@@ -584,8 +585,8 @@
 
 	/* draws a circle in the middle of each cell/tile, for debugging purposes */
 	function draw_hex_centers(grid) {
-		for (var i = 0; i < grid.length; i++) {
-			for (var j = 0; j < grid[i].length; j++) {
+		for (let i = 0; i < grid.length; i++) {
+			for (let j = 0; j < grid[i].length; j++) {
 				ctx.beginPath();
 				ctx.arc(grid[i][j].x, grid[i][j].y, 5, 0, 2 * Math.PI);
 				ctx.stroke();
@@ -612,8 +613,8 @@
 	}
 
 	function clear_grid(grid) {
-		for (var i = 0; i < grid.length; i++) {
-			for (var j = 0; j < grid[i].length; j++) {
+		for (let i = 0; i < grid.length; i++) {
+			for (let j = 0; j < grid[i].length; j++) {
 				grid[i][j].aspect = 'none';
 				grid[i][j].barred = false;
 			}
@@ -632,10 +633,10 @@
 			grid = draw_initial_grid(3);
 			current_state.grid = grid;
 			var barred_blacklist = [2, 5, 9, 13];
-			for (var i = 0; i < grid.length; i++) {
-				for (var j = 0; j < grid[i].length; j++) {
+			for (let i = 0; i < grid.length; i++) {
+				for (let j = 0; j < grid[i].length; j++) {
 					var can_barr = true;
-					for (var k = 0; k < barred_blacklist.length; k++) {
+					for (let k = 0; k < barred_blacklist.length; k++) {
 						if (barred_blacklist[k] == grid[i][j].id) {
 							can_barr = false;
 						}
@@ -696,7 +697,25 @@
 	}
 
 	function remove_from_aspect_table(aspect) {
-		
+		let res = {};
+		for (let i = 0; i < keylen(aspect_table); i++) {
+			if (keyAtIndex(aspect_table, i) != aspect) {
+				res[keyAtIndex(aspect_table, i)] = elemAtIndex(aspect_table, i);
+			}
+		}
+		aspect_table = res;
+	}
+
+	function add_to_aspect_table(aspect) {
+		let one = null;
+		let two = null;
+		if (all_aspect_table[aspect].length > 0) {
+			one = all_aspect_table[aspect][0];
+			two = all_aspect_table[aspect][1];
+			aspect_table[aspect] = [one, two];
+		} else {
+			aspect_table[aspect] = [];
+		}
 	}
 
 	var aspect_table = {
@@ -763,19 +782,33 @@
 		'radio':['lux','potentia'],
 		'strontio':['perditio','cognitio'],
 		'terminus':['alienis','lucrum']
-		/* Disabled in GT:NH, removed from GT++ too */
-		/*,
-		'sagrausten':['xenil','radio'],
-		'slusium':['xenil','nebrisum'],
-		'xablum':['xenil','slusium'],
-		'xenil':['magneto','radio'],
-		'zetralt':['xablum','auram']*/
 	};
+
+	var all_aspect_table = {};
+	for (let i = 0; i < keylen(aspect_table); i++) {
+		all_aspect_table[keyAtIndex(aspect_table, i)] = elemAtIndex(aspect_table, i);
+	}
+
+	function toggle_availability(id) {
+		let found = false;
+		for (let i = 0; i < keylen(aspect_table); i++) {
+			if (keyAtIndex(aspect_table, i) == keyAtIndex(all_aspect_table, id)) {
+				found = true;
+			}
+		}
+		if (found) {
+			remove_from_aspect_table(keyAtIndex(all_aspect_table, id));
+			document.getElementById('aspect_image_' + id).style.filter = 'brightness(25%)';
+		} else {
+			add_to_aspect_table(keyAtIndex(all_aspect_table, id));
+			document.getElementById('aspect_image_' + id).style.filter = 'brightness(100%)';
+		}
+	}
 
 	/* Image cache (for debugging) */
 	var images_loaded = false;
 	var image_count = 0;
-	for (var i = 0; i < keylen(aspect_table); i++) {
+	for (let i = 0; i < keylen(aspect_table); i++) {
 		let temp_img = new Image();
 		temp_img.src = './ressources/images/hq_images_black_all/' + keyAtIndex(aspect_table, i) + '.png';
 		image_cache[keyAtIndex(aspect_table, i)] = temp_img;
@@ -871,7 +904,7 @@
 			return clonedArr;
 	  } else{
 		let clonedObj = {};
-		for(var prop in obj){
+		for(let prop in obj){
 			if(obj.hasOwnProperty(prop)){
 				clonedObj[prop] = deepcopy(obj[prop]);
 			}
@@ -899,10 +932,10 @@
 
 	function paint_tiles(coord_list) {
 		var real_coords = [];
-		for (var i = 0; i < coord_list.length; i++) {
+		for (let i = 0; i < coord_list.length; i++) {
 				real_coords.push([grid[coord_list[i][0]][coord_list[i][1]].x, grid[coord_list[i][0]][coord_list[i][1]].y]);
 		}
-		for (var i = 0; i < real_coords.length; i++) {
+		for (let i = 0; i < real_coords.length; i++) {
 			draw_hexagon(real_coords[i][0], real_coords[i][1], grid[0][0].side_len, undefined, undefined, '#000000');
 		}
 	}
@@ -912,24 +945,24 @@
 		var middle_coords = [[x, y - 1], [x + 1, y - 1], [x + 1, y], [x, y + 1], [x - 1, y], [x - 1, y - 1]];
 		var right_coords = [[x, y - 1], [x + 1, y - 1], [x + 1, y], [x, y + 1], [x - 1, y + 1], [x - 1, y]];
 		if (x == Math.floor(grid.length / 2)) {
-			for (var i = 0; i < middle_coords.length; i++) {
-				if (!cell_exists(grid, middle_coords[i][0], middle_coords[i][1]) || grid[middle_coords[i][0]][middle_coords[i][1]].aspect == 'none' || !((aspect_table[grid[x][y].aspect].includes(grid[middle_coords[i][0]][middle_coords[i][1]].aspect) || aspect_table[grid[middle_coords[i][0]][middle_coords[i][1]].aspect].includes(grid[x][y].aspect)) || all)) {
+			for (let i = 0; i < middle_coords.length; i++) {
+				if (!cell_exists(grid, middle_coords[i][0], middle_coords[i][1]) || grid[middle_coords[i][0]][middle_coords[i][1]].aspect == 'none' || !((all_aspect_table[grid[x][y].aspect].includes(grid[middle_coords[i][0]][middle_coords[i][1]].aspect) || all_aspect_table[grid[middle_coords[i][0]][middle_coords[i][1]].aspect].includes(grid[x][y].aspect)) || all)) {
 					middle_coords.splice(i, 1);
 					i--;
 				}
 			}
 			return middle_coords;
 		} else if (x < Math.floor(grid.length / 2)) {
-			for (var i = 0; i < left_coords.length; i++) {
-				if (!cell_exists(grid, left_coords[i][0], left_coords[i][1]) || grid[left_coords[i][0]][left_coords[i][1]].aspect == 'none' || !((aspect_table[grid[x][y].aspect].includes(grid[left_coords[i][0]][left_coords[i][1]].aspect) || aspect_table[grid[left_coords[i][0]][left_coords[i][1]].aspect].includes(grid[x][y].aspect)) || all)) {
+			for (let i = 0; i < left_coords.length; i++) {
+				if (!cell_exists(grid, left_coords[i][0], left_coords[i][1]) || grid[left_coords[i][0]][left_coords[i][1]].aspect == 'none' || !((all_aspect_table[grid[x][y].aspect].includes(grid[left_coords[i][0]][left_coords[i][1]].aspect) || all_aspect_table[grid[left_coords[i][0]][left_coords[i][1]].aspect].includes(grid[x][y].aspect)) || all)) {
 					left_coords.splice(i, 1);
 					i--;
 				}
 			}
 			return left_coords;
 		}
-		for (var i = 0; i < right_coords.length; i++) {
-				if (!cell_exists(grid, right_coords[i][0], right_coords[i][1]) || grid[right_coords[i][0]][right_coords[i][1]].aspect == 'none' || !((aspect_table[grid[x][y].aspect].includes(grid[right_coords[i][0]][right_coords[i][1]].aspect) || aspect_table[grid[right_coords[i][0]][right_coords[i][1]].aspect].includes(grid[x][y].aspect) || all))) {
+		for (let i = 0; i < right_coords.length; i++) {
+				if (!cell_exists(grid, right_coords[i][0], right_coords[i][1]) || grid[right_coords[i][0]][right_coords[i][1]].aspect == 'none' || !((all_aspect_table[grid[x][y].aspect].includes(grid[right_coords[i][0]][right_coords[i][1]].aspect) || all_aspect_table[grid[right_coords[i][0]][right_coords[i][1]].aspect].includes(grid[x][y].aspect) || all))) {
 					right_coords.splice(i, 1);
 					i--;
 				}
@@ -943,7 +976,7 @@
 		var middle_coords = [[x, y - 1], [x + 1, y - 1], [x + 1, y], [x, y + 1], [x - 1, y], [x - 1, y - 1]];
 		var right_coords = [[x, y - 1], [x + 1, y - 1], [x + 1, y], [x, y + 1], [x - 1, y + 1], [x - 1, y]];
 		if (x == Math.floor(grid.length / 2)) {
-			for (var i = 0; i < middle_coords.length; i++) {
+			for (let i = 0; i < middle_coords.length; i++) {
 				if (!cell_exists(grid, middle_coords[i][0], middle_coords[i][1]) || (grid[middle_coords[i][0]][middle_coords[i][1]].barred && ignore_barred)) {
 					middle_coords.splice(i, 1);
 					i--;
@@ -951,7 +984,7 @@
 			}
 			return middle_coords;
 		} else if (x < Math.floor(grid.length / 2)) {
-			for (var i = 0; i < left_coords.length; i++) {
+			for (let i = 0; i < left_coords.length; i++) {
 				if (!cell_exists(grid, left_coords[i][0], left_coords[i][1]) || (grid[left_coords[i][0]][left_coords[i][1]].barred && ignore_barred)) {
 					left_coords.splice(i, 1);
 					i--;
@@ -959,7 +992,7 @@
 			}
 			return left_coords;
 		}
-		for (var i = 0; i < right_coords.length; i++) {
+		for (let i = 0; i < right_coords.length; i++) {
 				if (!cell_exists(grid, right_coords[i][0], right_coords[i][1]) || (grid[right_coords[i][0]][right_coords[i][1]].barred && ignore_barred)) {
 					right_coords.splice(i, 1);
 					i--;
@@ -987,7 +1020,7 @@
 				neighbors = tile_neighbors(x, y, grid);
 			}
 			//console.log(`neighbors: ${neighbors}`);
-			for (var i = 0; i < neighbors.length; i++) {
+			for (let i = 0; i < neighbors.length; i++) {
 				//console.log(`i: ${i}, neighbor len: ${neighbors.length}`);
 				neighbor_chain(neighbors[i][0], neighbors[i][1], grid, path, cell_list, ignore_aspects, current_path);
 			}
@@ -998,8 +1031,8 @@
 	function check_continuity(grid) {
 		var starting_cell;
 		var aspect_cell_counter = 0;
-		for (var i = 0; i < grid.length; i++) {
-			for (var j = 0; j < grid[i].length; j++) {
+		for (let i = 0; i < grid.length; i++) {
+			for (let j = 0; j < grid[i].length; j++) {
 				if (grid[i][j].aspect != 'none') {
 					if (starting_cell == undefined) {
 						starting_cell = [i, j];
@@ -1015,8 +1048,8 @@
 	}
 
 	function get_cell_by_id(id, grid) {
-		for (var i = 0; i < grid.length; i++) {
-			for (var j = 0; j < grid[i].length; j++) {
+		for (let i = 0; i < grid.length; i++) {
+			for (let j = 0; j < grid[i].length; j++) {
 				if (grid[i][j].id == id) {
 					return grid[i][j];
 				}
@@ -1025,7 +1058,7 @@
 	}
 
 	function id_in_blacklist(id, state) {
-		for (var i = 0; i < keylen(state.impossible_closest_cells); i++) {
+		for (let i = 0; i < keylen(state.impossible_closest_cells); i++) {
 			if (keyAtIndex(state.impossible_closest_cells, i) == id) {
 				return true;
 			}
@@ -1034,7 +1067,7 @@
 	}
 
 	function aspect_blacklisted_at_id(aspect, id, state) {
-		for (var i = 0; i < keylen(state.impossible_closest_cells); i++) {
+		for (let i = 0; i < keylen(state.impossible_closest_cells); i++) {
 			if (elemAtIndex(state.impossible_closest_cells, i) == aspect) {
 				return true;
 			}
@@ -1072,16 +1105,23 @@
 		/* basically take every cell and get all distances to all other cells */
 		/* uses precalculated values */
 		/* ignores cells that form a continuity */
+
+		/* EXPERIMENTAL (seems to be working)*/
+		if (current_state.current_path && !path_complete(current_state.current_path, current_state)) {
+			return[current_state.current_path[last_used_path_cell(current_state)], current_state.current_path[current_state.current_path.length - 1]];
+		}
+		/* EXPERIMENTAL */
+
 		var current_closest_pair = [];
-		for (var i = 0; i < state.grid.length; i++) {
-			for (var j = 0; j < state.grid[i].length; j++) {
+		for (let i = 0; i < state.grid.length; i++) {
+			for (let j = 0; j < state.grid[i].length; j++) {
 				/* check that the cell has an aspect and not in blacklist*/
 				if (state.grid[i][j].aspect != 'none' && !impossible_id(state.grid[i][j].id, state)) {
 					var current_neighbor_chain = neighbor_chain(i, j, state.grid);
-					for (var k = 0; k < state.grid.length; k++) {
+					for (let k = 0; k < state.grid.length; k++) {
 						/* check if the cell isn't already connected */
 						var in_neighbor_chain = false;
-						for (var l = 0; l < state.grid[k].length; l++) {
+						for (let l = 0; l < state.grid[k].length; l++) {
 							/*if (state.grid[current_neighbor_chain[l][0]][current_neighbor_chain[l][1]].id == parseInt(keyAtIndex(distance_dict[state.grid[i][j].id], k))) {
 								in_neighbor_chain = true;
 							}*/
@@ -1127,10 +1167,10 @@
 
 	function precalculate_cell_distances() {
 		console.log("precalculating distances: start");
-		for (var i = 0; i < grid.length; i++) {
-			for (var j = 0; j < grid[i].length; j++) {
-				for (var k = 0; k < grid.length; k++) {
-					for (var l = 0; l < grid[k].length; l++) {
+		for (let i = 0; i < grid.length; i++) {
+			for (let j = 0; j < grid[i].length; j++) {
+				for (let k = 0; k < grid.length; k++) {
+					for (let l = 0; l < grid[k].length; l++) {
 						if (!(i == k && j == l)) {
 							if (!distance_dict[grid[i][j].id]) {
 								distance_dict[grid[i][j].id] = {};
@@ -1150,7 +1190,7 @@
 		var temp_neighbors = tile_neighbors_wo_aspects(cell1.array_x, cell1.array_y, state.grid);
 		var temp_closest_neighbor = null;
 		var temp_closest_distance = null;
-		for (var i = 0; i < temp_neighbors.length; i++) {
+		for (let i = 0; i < temp_neighbors.length; i++) {
 			let target = state.grid[temp_neighbors[i][0]][temp_neighbors[i][1]];
 			if (target.aspect == 'none' && !target.barred && (finding_path ? in_same_space(cell2.id, target.id, state.grid, true, current_path) : true) && ((state.current_path && state.current_path.length > 0) ? target.id == state.current_path[last_used_path_cell(state, state.current_path) + 1] : true)) {
 				if (temp_closest_neighbor == null && !custom_blacklist.includes(target.id) && (path.length > 0 == path.includes(target.id)) && (state.current_path_forbidden_child ? state.current_path_forbidden_child[id1] != target.id : true) && (finding_path ? !current_path.includes(target.id) : true)) {
@@ -1173,25 +1213,25 @@
 		if (!aspect) {
 			return 0;
 		}
-		if (aspect_table[aspect].length == 1) {
+		if (all_aspect_table[aspect].length == 1) {
 			return 0;
 		} else {
-			counter += Math.max(complexity(aspect_table[aspect][0]), complexity(aspect_table[aspect][1]));
+			counter += Math.max(complexity(all_aspect_table[aspect][0]), complexity(all_aspect_table[aspect][1]));
 		}
 		return counter;
 	}
 
 	/* Returns true if an aspect contains another */
 	function contains(container, contained) {
-		if (aspect_table[container].length == 1) {
-			if (aspect_table[container][0] == contained) {
+		if (all_aspect_table[container].length == 1) {
+			if (all_aspect_table[container][0] == contained) {
 				return 0;
 			}
 		} else {
-			if (aspect_table[container][0] == contained) {
+			if (all_aspect_table[container][0] == contained) {
 				return 0;
 			}
-			if (aspect_table[container][1] == contained) {
+			if (all_aspect_table[container][1] == contained) {
 				return 1;
 			}
 		}
@@ -1199,8 +1239,17 @@
 	}
 
 	function can_use_aspect(id, aspect, state) {
+		let found = false;
+		for (let i = 0; i < keylen(aspect_table); i++) {
+			if (keyAtIndex(aspect_table, i) == aspect) {
+				found = true;
+			}
+		}
+		if (!found) {
+			return false;
+		}
 		if (state.impossible_closest_cells[id]) {
-			for (var i = 0; i < state.impossible_closest_cells[id].length; i++) {
+			for (let i = 0; i < state.impossible_closest_cells[id].length; i++) {
 				if (state.impossible_closest_cells[id][i] == aspect) {
 					return false;
 				}
@@ -1218,11 +1267,11 @@
 		var current_complexity = null;
 
 		/* small complexity < being linked to target cell */
-		if (aspect_table[starting_cell.aspect].length == 0) {
+		if (all_aspect_table[starting_cell.aspect].length == 0) {
 			/* primal aspect, must choose compound that includes it */
 			/* trying to have smallest complexity */
 			/* and then search again to see i we can get something directly related */
-			for (var i = 0; i < keylen(aspect_table); i++) {
+			for (let i = 0; i < keylen(aspect_table); i++) {
 				if (can_use_aspect(neighbor_cell_id, keyAtIndex(aspect_table, i), state) && least_complex_aspect == null) {
 					if (contains(keyAtIndex(aspect_table, i), starting_cell.aspect) > -1) {
 						least_complex_aspect = keyAtIndex(aspect_table, i); //aspect_table[starting_cell.aspect][contains(keyAtIndex(aspect_table, i), starting_cell.aspect)];
@@ -1240,7 +1289,7 @@
 			}
 			/* trying to match a bit the target aspect */
 			if (temp_aspect) {
-				for (var i = 0; i < keylen(aspect_table); i++) {
+				for (let i = 0; i < keylen(aspect_table); i++) {
 					if (can_use_aspect(neighbor_cell_id, keyAtIndex(aspect_table, i), state) && contains(keyAtIndex(aspect_table, i), starting_cell.aspect) > -1) {
 						if ((current_complexity == complexity(temp_aspect) || Math.abs(current_complexity - complexity(temp_aspect)) == 1) && (contains(temp_aspect, target_cell.aspect) || contains(target_cell.aspect, temp_aspect))) {
 							least_complex_aspect = temp_aspect;
@@ -1251,7 +1300,7 @@
 			}
 		} else if (aspect_table[starting_cell.aspect].length == 2) {
 			/* compound aspect */
-			for (var i = 0; i < keylen(aspect_table); i++) {
+			for (let i = 0; i < keylen(aspect_table); i++) {
 				if (least_complex_aspect == null) {
 					if (can_use_aspect(neighbor_cell_id, keyAtIndex(aspect_table, i), state) && can_connect(starting_cell.aspect, keyAtIndex(aspect_table, i))) {
 						least_complex_aspect = keyAtIndex(aspect_table, i); //aspect_table[starting_cell.aspect][contains(keyAtIndex(aspect_table, i), starting_cell.aspect)];
@@ -1268,7 +1317,7 @@
 				}
 			}
 			if (temp_aspect) {
-				for (var i = 0; i < keylen(aspect_table); i++) {
+				for (let i = 0; i < keylen(aspect_table); i++) {
 					if (can_use_aspect(neighbor_cell_id, keyAtIndex(aspect_table, i), state) && contains(starting_cell.aspect, keyAtIndex(aspect_table, i)) > -1) {
 						if ((current_complexity == complexity(temp_aspect) || Math.abs(current_complexity - complexity(temp_aspect)) == 1) && (contains(temp_aspect, target_cell.aspect) || contains(target_cell.aspect, temp_aspect))) {
 							least_complex_aspect = temp_aspect;
@@ -1461,7 +1510,7 @@
 	/* Removes dupes form an array */
 	function remove_dupes(array) {
 		let res = [];
-		for (var i = 0; i < array.length; i++) {
+		for (let i = 0; i < array.length; i++) {
 			if (!res.includes(array[i])) {
 				res.push(array[i]);
 			}
@@ -1660,6 +1709,9 @@
 				//sure, that's pretty bad
 			} else if (current_state.bad_state_reason == 'invalid_path') {
 				current_state.blacklisted_paths.push(current_state.current_path);
+				if (state_history.length == 0) {
+					return;
+				}
 				state_history[state_history.length - 1].blacklisted_paths.push(current_state.current_path);
 				current_state.current_path = null;
 				current_state.impossible_aspects_for_current_path = {};
@@ -1699,8 +1751,8 @@
 		original_grid = deepcopy(grid);
 		original_state = new State(original_grid);
 		let found_aspects = 0;
-		for (var i = 0; i < grid.length; i++) {
-			for (var j = 0; j < grid[i].length; j++) {
+		for (let i = 0; i < grid.length; i++) {
+			for (let j = 0; j < grid[i].length; j++) {
 				if (grid[i][j].aspect != 'none') {
 					grid[i][j].base = true;
 					found_aspects ++;

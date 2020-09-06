@@ -1,7 +1,18 @@
+#aspect_selector_gui {
+	width: 95%;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	height: 250px;
+	overflow-y: scroll;
+	border: solid; padding-top: 10px;
+	flex-direction: row;
+}
+
 .aspect_content_wrapper {
-	/*width: 100px;
-	height: 60px;*/
-	width: 10%;
+	width: 10em;
+	/*height: 60px;*/
+	/*width: 10%;*/
 	height: 60px;
 	border: solid;
 	border-color: black;
@@ -13,28 +24,33 @@
 .aspect_content_wrapper img {
 	/*height: 100%;*/
 	width: 35%;
-	padding-right: 10%;
+	margin-right: 10%;
+	min-width: 35%;
 	-webkit-user-drag: none;
 	-khtml-user-drag: none;
 	-moz-user-drag: none;
 	-o-user-drag: none;
 	user-drag: none;
+	cursor: pointer;
+}
+
+.aspect_content_wrapper img:hover {
+	box-shadow: 0 0 3px #ddd;
+	border-radius: 50%;
 }
 
 .aspect_text_wrapper {
+	font-size: 1em;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
+ 	white-space: nowrap;
+	line-height: 95%;
+	cursor: pointer;
 }
 
-#aspect_selector_gui {
-	width: 95%;
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-around;
-	height: 250px;
-	overflow: scroll;
-	border: solid; padding-top: 10px;
+.aspect_text_wrapper:hover {
+	text-shadow: 0 0 10px #ff4242;
 }
 
 .myButton {
@@ -46,7 +62,7 @@
 	display:inline-block;
 	cursor:pointer;
 	color:#666666;
-	font-family:Arial;
+	/*font-family:Arial;*/
 	font-size:15px;
 	font-weight:bold;
 	padding:6px 24px;
