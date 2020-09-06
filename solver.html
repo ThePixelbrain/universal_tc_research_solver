@@ -46,115 +46,70 @@
 		#aspect_selector_gui {
 			width: 95%;
 		}
+
+		.myButton {
+			box-shadow:inset 0px 1px 0px 0px #ffffff;
+			background:linear-gradient(to bottom, #ffffff 5%, #f6f6f6 100%);
+			background-color:#ffffff;
+			border-radius:6px;
+			border:1px solid #dcdcdc;
+			display:inline-block;
+			cursor:pointer;
+			color:#666666;
+			font-family:Arial;
+			font-size:15px;
+			font-weight:bold;
+			padding:6px 24px;
+			text-decoration:none;
+			text-shadow:0px 1px 0px #ffffff;
+			margin-bottom: 10px;
+		}
+		.myButton:hover {
+			background:linear-gradient(to bottom, #f6f6f6 5%, #ffffff 100%);
+			background-color:#f6f6f6;
+		}
+		.myButton:active {
+			position:relative;
+			top:1px;
+		}
+
+		.css-input {
+			padding: 5px;
+			font-size: 16px;
+			border-width: 1px;
+			border-color: #CCCCCC;
+			background-color: #FFFFFF;
+			color: #000000;
+			border-style: solid;
+			border-radius: 0px;
+			box-shadow: 0px 0px 5px rgba(66,66,66,.75);
+			text-shadow: 0px 0px 5px rgba(66,66,66,.75);
+		}
+		.css-input:focus {
+			outline:none;
+		}
 		
 	</style>
 </head>
 <body onload="load_aspect_selector()">
 	<canvas id='canvas' onclick="handle_click(event)"></canvas>
 	<br>
-	<div id="aspect_selector_gui" style="display: flex; flex-wrap: wrap; justify-content: space-around; height: 250px; overflow: scroll;"></div>
+	<div id="aspect_selector_gui" style="display: flex; flex-wrap: wrap; justify-content: space-around; height: 250px; overflow: scroll; border: solid; padding-top: 10px;"></div>
 	<br>
-	<button onclick='mouse_selection_mode()'>Selection mode (for choosing aspects)</button>
+	<button id="barring_button" class="myButton" onclick='mouse_barring_mode()'>Barring mode (bar the cells that aren't available)</button>
 	<br>
-	<button onclick='mouse_barring_mode()'>Barring mode (bar the cells that aren't available)</button>
+	<button class="myButton" onclick="solve()">Solve</button>
 	<br>
-	<select id="aspect_selector" onchange="assign_aspect()">
-		<option value="none">Aspect - none</option>
-		<option value="aer">Aer</option>
-		<option value="alienis">Alienis</option>
-		<option value="aqua">Aqua</option>
-		<option value="arbor">Arbor</option>
-		<option value="auram">Auram</option>
-		<option value="bestia">Bestia</option>
-		<option value="cognitio">Cognitio</option>
-		<option value="corpus">Corpus</option>
-		<option value="exanimis">Exanimis</option>
-		<option value="fabrico">Fabrico</option>
-		<option value="fames">Fames</option>
-		<option value="gelum">Gelum</option>
-		<option value="herba">Herba</option>
-		<option value="humanus">Humanus</option>
-		<option value="ignis">Ignis</option>
-		<option value="instrumentum">Instrumentum</option>
-		<option value="iter">Iter</option>
-		<option value="limus">Limus</option>
-		<option value="lucrum">Lucrum</option>
-		<option value="lux">Lux</option>
-		<option value="machina">Machina</option>
-		<option value="messis">Messis</option>
-		<option value="metallum">Metallum</option>
-		<option value="meto">Meto</option>
-		<option value="mortuus">Mortuus</option>
-		<option value="motus">Motus</option>
-		<option value="ordo">Ordo</option>
-		<option value="pannus">Pannus</option>
-		<option value="perditio">Perditio</option>
-		<option value="perfodio">Perfodio</option>
-		<option value="permutatio">Permutatio</option>
-		<option value="potentia">Potentia</option>
-		<option value="praecantatio">Praecantatio</option>
-		<option value="sano">Sano</option>
-		<option value="sensus">Sensus</option>
-		<option value="spiritus">Spiritus</option>
-		<option value="telum">Telum</option>
-		<option value="tempestas">Tempestas</option>
-		<option value="tenebrae">Tenebrae</option>
-		<option value="terra">Terra</option>
-		<option value="tutamen">Tutamen</option>
-		<option value="vacuos">Vacuos</option>
-		<option value="venenum">Venenum</option>
-		<option value="victus">Victus</option>
-		<option value="vinculum">Vinculum</option>
-		<option value="vitium">Vitium</option>
-		<option value="vitreus">Vitreus</option>
-		<option value="volatus">Volatus</option>
-
-		<option value="none">===============</option>
-
-		<option value="desidia">Desidia</option>
-		<option value="gula">Gula</option>
-		<option value="infernus">Infernus</option>
-		<option value="invidia">Invidia</option>
-		<option value="ira">Ira</option>
-		<option value="luxuria">Luxuria</option>
-		<option value="superbia">Superbia</option>
-
-		<option value="none">===============</option>
-
-		<option value="tempus">Tempus</option>
-
-		<option value="none">===============</option>
-
-		<option value="electrum">Electrum</option>
-		<option value="magneto">Magneto</option>
-		<option value="nebrisum">Nebrisum</option>
-		<option value="radio">Radio</option>
-		<option value="strontio">Strontio</option>
-
-		<option value="none">===============</option>
-
-		<option value="terminus">Terminus</option>
-
-		<!--<option value="none">===============</option>
-
-		<option value="sagrausten">Sagrausten</option>
-		<option value="slusium">Slusium</option>
-		<option value="xablum">Xablum</option>
-		<option value="xenil">Xenil</option>
-		<option value="zetralt">Zetralt</option>-->
-	</select>
+	<button class="myButton" onclick="reset()">Reset</button>
 	<br>
-	<button onclick="solve()">Solve</button>
+	<button class="myButton" onclick="preset(7)">Preset (demo)</button>
 	<br><br>
-	<button onclick="preset(7)">preset (debug)</button>
-	<br><br>
-	<input type="number" name="Grid size" onchange="resize_grid()" id="grid_size_input" value="5">
+	<form>
+		<label for="grid_size_input">Grid size: </label>
+		<input class="css-input" type="number" name="Grid size" onchange="resize_grid()" id="grid_size_input" value="5">
+	</form>
 	<h2 id="loading">Please wait, loading aspect images...</h2>
 	<div id="gui_aspect_selector"></div>
-	<!--<div style="overflow-x:auto;">-->
-  
-	<div style="position: fixed; z-index: -1; top: 0; left: 0;" id="cursor_placeholder"></div>
-
 	<br><br>
 </body>
 
@@ -168,7 +123,7 @@
 
 	/* detect click outside of canvas */
 	document.addEventListener('click', function(event) {
-		var isClickInside = document.getElementById('canvas').contains(event.target) || document.getElementById('aspect_selector').contains(event.target);
+		var isClickInside = document.getElementById('canvas').contains(event.target);// || document.getElementById('aspect_selector').contains(event.target);
 		if (!isClickInside && selected_cell != undefined) {
 			selected_cell.selected = false;
 			selected_cell = undefined;
@@ -318,9 +273,9 @@
 
 	document.addEventListener('mousedown', function(event) {
 		if (event.target.id.startsWith('aspect_image_')) {
-			console.log('clicked ' + keyAtIndex(aspect_flavor_dict, event.target.id.substring(13)));
+			//console.log('clicked ' + keyAtIndex(aspect_flavor_dict, event.target.id.substring(13)));
 			document.body.style.cursor /*document.getElementById('aspect_image_0').style.cursor*/ = "url('./cursors/" + keyAtIndex(aspect_flavor_dict, event.target.id.substring(13)) + '.png' + "') 15 15, pointer";
-			console.log(document.body.style.cursor);
+			//console.log(document.body.style.cursor);
 			holding_aspect = true;
 			held_aspect = keyAtIndex(aspect_flavor_dict, event.target.id.substring(13));
 			//console.log('<img id="aspect_cursor" src="./hq_images_black_all/' + keyAtIndex(aspect_flavor_dict, event.target.id.substring(13)) + '">');
@@ -361,21 +316,21 @@
 					update_cell(current_state.grid, i, j);
 					if (last_highlighted_id == null) {
 						last_highlighted_id = current_state.grid[i][j].id;
-						console.log('0 last highlighted cell: ' + last_highlighted_id);
+						//console.log('0 last highlighted cell: ' + last_highlighted_id);
 					}
 					if (current_state.grid[i][j].id != last_highlighted_id) {
 						let last_highlighted_cell = get_cell_by_id(last_highlighted_id, current_state.grid);
 						last_highlighted_cell.highlighted = false;
 						update_cell(current_state.grid, last_highlighted_cell.array_x, last_highlighted_cell.array_y);
 						last_highlighted_id = current_state.grid[i][j].id;
-						console.log('1 last highlighted cell: ' + last_highlighted_id);
+						//console.log('1 last highlighted cell: ' + last_highlighted_id);
 					}
 				}
 			}
 		}
-		console.log('mouse in cell: ' + mouse_in_cell);
+		//console.log('mouse in cell: ' + mouse_in_cell);
 		if (!mouse_in_cell && last_highlighted_id != null) {
-			console.log('out of canvas');
+			//console.log('out of canvas');
 			let last_highlighted_cell = get_cell_by_id(last_highlighted_id, current_state.grid);
 			last_highlighted_cell.highlighted = false;
 			update_cell(current_state.grid, last_highlighted_cell.array_x, last_highlighted_cell.array_y);
@@ -455,13 +410,25 @@
 
 	function mouse_selection_mode() {
 		mouse_mode = 'selecting';
+		document.getElementById('selection_button').style.borderColor = '#1da4b8';
+		document.getElementById('selection_button').style.borderWidth = '5px';
+		document.getElementById('barring_button').style.borderColor = '#000000';
+		document.getElementById('barring_button').style.borderWidth = '1px';
 	}
 
 	function mouse_barring_mode() {
-		mouse_mode = 'barring';
-		if (selected_cell != undefined) {
-			selected_cell.selected = false;
-			selected_cell = undefined;
+		if (mouse_mode == 'selecting') {
+			mouse_mode = 'barring';
+			if (selected_cell != undefined) {
+				selected_cell.selected = false;
+				selected_cell = undefined;
+			}
+			document.getElementById('barring_button').style.borderColor = '#ff4242';
+			document.getElementById('barring_button').style.borderWidth = '5px';
+		} else {
+			mouse_mode = 'selecting';
+			document.getElementById('barring_button').style.borderColor = '#000000';
+			document.getElementById('barring_button').style.borderWidth = '1px';
 		}
 	}
 
@@ -509,9 +476,9 @@
 			selected_cell.selected = false;
 			selected_cell = undefined;
 		}
-		if (selected_cell != undefined && selected_cell.selected) {
+		/*if (selected_cell != undefined && selected_cell.selected) {
 			document.getElementById('aspect_selector').value = selected_cell.aspect;
-		}
+		}*/
 		draw_grid(grid);
 	}
 
@@ -1764,27 +1731,43 @@
 	var current_path = null;
 
 	function solve() {
+		current_state = new State(grid);
+		depth = 0;
+		state_history = [];
+		original_grid;
+		original_state;
+		returning_from_bad_state = false;
+		last_touched_cells = null;
+		chosen_cell = null;
+		considered_cells = null;
+		solved = false;
+		max_depth = 10000;
+		current_path = null;
 		precalculate_cell_distances();
 		original_grid = deepcopy(grid);
 		original_state = new State(original_grid);
+		let found_aspects = 0;
 		for (var i = 0; i < grid.length; i++) {
 			for (var j = 0; j < grid[i].length; j++) {
 				if (grid[i][j].aspect != 'none') {
 					grid[i][j].base = true;
+					found_aspects ++;
 				}
 			}
 		}
-		while(!solved && depth < max_depth) {
-			main_loop();
-		}
-		draw_grid(grid);
+		if (found_aspects > 1) {
+			while(!solved && depth < max_depth) {
+				main_loop();
+			}
+			draw_grid(grid);
+		}	
 	}
 
-	/* 1. Find path between two closest aspects */
-	/* 2. Try to build a path between them. Count that path as one move */
-	/*    The path uses itself a backtracing algorithm */
-	/* 3. If all possible combinations for a path fail and all paths for current aspects */
-	/*    fail, redo the previous path differently */
+	function reset() {
+		grid = draw_initial_grid(5);
+		current_state.grid = grid;
+		draw_grid(grid);
+	}
 
 </script>
 </html>
