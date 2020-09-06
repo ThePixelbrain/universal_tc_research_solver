@@ -477,6 +477,12 @@
 								selected_cell = undefined;
 							}
 							selected_cell = grid[i][j];
+							if (selected_cell.aspect != 'none') {
+								selected_cell.aspect = 'none';
+								update_cell(grid, selected_cell.array_x, selected_cell.array_y);
+								selected_cell.selected = false;
+								selected_cell = undefined;
+							}
 						}
 					}
 					break;
@@ -617,7 +623,11 @@
 		} else if (grid[i][j].selected) {
 			draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#baf6ff');
 		} else if (grid[i][j].highlighted) {
-			draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#dcf8fc');
+			if (grid[i][j].aspect == 'none') {
+				draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#dcf8fc');
+			} else {
+				draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 3, '#47443c', '#ff809d');
+			}
 		} else {
 			draw_hexagon(grid[i][j].x, grid[i][j].y, grid[i][j].side_len, 2);
 		}
