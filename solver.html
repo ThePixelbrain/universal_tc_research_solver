@@ -12,6 +12,8 @@
 <body onload="load_aspect_selector()">
 	<div id="wrapper">
 		<div class="article">
+			<h1>Thaumcraft 4 Research Solver</h1>
+			<br>
 			<canvas id='canvas' onclick="handle_click(event)"></canvas>
 			<br>
 			<div id="aspect_selector_gui"></div>
@@ -30,13 +32,22 @@
 			</form>
 			<h2 id="loading">Please wait, loading aspect images...</h2>
 			<div id="gui_aspect_selector"></div>
-			<br><br>
+			<br>
+			<h2>How do I use it?</h2>
+			<ul>
+				<li>Drag aspects on the grid to recreate a research note. Drag the images, not the box or text.</li>
+				<li>You can remove aspects from the grid by simply clicking on them.</li>
+				<li>Use the "Barring mode" button to remove any tiles that can not be used.</li>
+				<li>Click "Solve" and wait. A backtracing algorithm will make your poor CPU work.</li>
+				<li>If you feel like it takes too long, or some kind of error message pops up *on the site, not a browser popup (!)*, congratulations! You probably discovered a bug! Report your initial aspect setup here: <a href="https://github.com/jackowski626/universal_tc_research_solver/issues" target="_blank">github.com/jackowski626/universal_tc_research_solver/issues</a></li>
+			</ul>
+			<h2>Where can I send my precious suggestions?</h2>
+			<p>Do it here: <a href="https://github.com/jackowski626/universal_tc_research_solver/issues" target="_blank">github.com/jackowski626/universal_tc_research_solver/issues</a></p>
 		</div>
 	</div>
 </body>
 
 <script>
-
 	var debugging = false;
 
 	var holding_aspect = false;
@@ -167,7 +178,6 @@
 		'vitium':'taint',
 		'vitreus':'crystal',
 		'volatus':'flight',
-
 		'desidia':'sloth',
 		'gula':'gluttony',
 		'infernus':'nether',
@@ -200,6 +210,7 @@
 
 	document.addEventListener('mousedown', function(event) {
 		if (event.target.id.startsWith('aspect_image_')) {
+			event.preventDefault();
 			//console.log('clicked ' + keyAtIndex(aspect_flavor_dict, event.target.id.substring(13)));
 			document.body.style.cursor /*document.getElementById('aspect_image_0').style.cursor*/ = "url('./ressources/images/cursors/" + keyAtIndex(aspect_flavor_dict, event.target.id.substring(13)) + '.png' + "') 15 15, pointer";
 			//console.log(document.body.style.cursor);
@@ -682,6 +693,10 @@
 			console.warn("Invalid preset!");
 		}
 		precalculate_cell_distances();
+	}
+
+	function remove_from_aspect_table(aspect) {
+		
 	}
 
 	var aspect_table = {
