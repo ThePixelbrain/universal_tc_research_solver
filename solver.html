@@ -1764,7 +1764,7 @@
 	}
 
 	function reset() {
-		grid = draw_initial_grid(5);
+		grid = draw_initial_grid(parseInt(document.getElementById('grid_size_input').value));
 		current_state.grid = grid;
 		draw_grid(grid);
 	}
