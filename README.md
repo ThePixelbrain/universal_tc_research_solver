@@ -3,9 +3,9 @@
 
 ### Features:
 * Drag and drop GUI
-* Most aspects from mods
-* Ability to select or unselect aspects one does not want to use
-* Abilty to select or unselect aspects by mod
+* Aspects from Thaumcraft addons / other mods
+* Ability to select or unselect aspects one does the solver want to use
+* Abilty to select or unselect aspects by addon / mod
 * Aspect search-box
 * Backtracing algorithm, ardent Thaumaturges should be able to cook eggs on their PCs
 * Dark theme
