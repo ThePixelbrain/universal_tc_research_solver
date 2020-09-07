@@ -712,6 +712,7 @@
 	function preset(num) {
 		/* base */
 		clear_grid(grid);
+		reset();
 		if (num == 0) {
 			grid = draw_initial_grid(3);
 			current_state.grid = grid;
@@ -877,7 +878,7 @@
 		'sanctus':['spiritus', 'auram'],
 		'exubitor':['alienis', 'mortuus'],
 		'saxum':['terra', 'terra'],
-		'granum':['victus', 'terra'],
+		'granum':['terra', 'victus'],
 		'mru':['praecantatio', 'potentia'],
 		'radiation':['mru', 'motus'],
 		'matrix':['mru', 'humanus']
@@ -1301,12 +1302,13 @@
 							}*/
 							if (inArray(current_neighbor_chain, [k , l])) {
 								in_neighbor_chain = true;
-							}
-
-							if (state.current_path && !closest_neighbor_to_cell(state.grid[i][j].id, state.grid[k][l].id, state)) {
 								continue;
 							}
-							if (state.current_path && !path_complete(state.current_path, state)) {
+
+							if (state.current_path && !path_complete(current_state.current_path, current_state) && !closest_neighbor_to_cell(state.grid[i][j].id, state.grid[k][l].id, state)) {
+								continue;
+							}
+							if (state.current_path && !path_complete(current_state.current_path, current_state) && !path_complete(state.current_path, state)) {
 								if (grid[i][j].id != state.current_path[last_used_path_cell(state)] ) {
 									continue;
 								}
@@ -1758,7 +1760,7 @@
 				}
 			}
 			if (are_neighbors && can_connect(cell1.aspect, cell3.aspect)) {
-				cell3.aspect = 'none';
+				cell2.aspect = 'none';//cell3.aspect = 'none';
 				if (debugging) {
 					draw_grid(state.grid);
 				}
@@ -1789,7 +1791,7 @@
 		if (depth == 22) {
 			console.log("debug");
 		}
-		if (depth == 198) {
+		if (depth == 469) {
 			console.log("debug");
 		}
 		console.log(`entering depth ${depth}`);
