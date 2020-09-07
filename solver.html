@@ -1037,7 +1037,7 @@
 	}
 
 	function can_connect(aspect1, aspect2) {
-		if (all_aspect_table[aspect1].includes(aspect2) || aspect_table[aspect2].includes(aspect1)) {
+		if (all_aspect_table[aspect1].includes(aspect2) || all_aspect_table[aspect2].includes(aspect1)) {
 			return true;
 		}
 		return false;
