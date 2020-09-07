@@ -11,8 +11,6 @@
 
 .aspect_content_wrapper {
 	width: 10em;
-	/*height: 60px;*/
-	/*width: 10%;*/
 	height: 60px;
 	border: solid;
 	border-color: black;
@@ -22,7 +20,6 @@
 }
 
 .aspect_content_wrapper img {
-	/*height: 100%;*/
 	width: 35%;
 	margin-right: 10%;
 	min-width: 35%;
@@ -62,7 +59,6 @@
 	display:inline-block;
 	cursor:pointer;
 	color:#666666;
-	/*font-family:Arial;*/
 	font-size:15px;
 	font-weight:bold;
 	padding:6px 24px;
@@ -93,4 +89,23 @@
 }
 .css-input:focus {
 	outline:none;
+}
+
+#aspect_selector_modpack_wrapper {
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: column;
+}
+
+#modpack_selector {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+#modpack_selector label {
+	margin-right: 1em;
+}
+
+.input_wrapper {
+	display: inline-block;
 }
