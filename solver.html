@@ -16,8 +16,14 @@
 			<br>
 			<canvas id='canvas' onclick="handle_click(event)"></canvas>
 			<br>
+			<h2 id="wait_solving"></h2>
 			<div id="aspect_selector_modpack_wrapper">
 				<div id="aspect_selector_gui"></div>
+				<br>
+				<div id="search_wrapper">
+					<label for="search_box">Search: </label>
+					<input id="search_box" type="text" name="search box" oninput="search(this)">
+				</div>
 				<br>
 				<div id="modpack_selector">
 					<div class="input_wrapper" onclick="toggle_aspect_set(this)">
@@ -69,7 +75,7 @@
 			<br>
 			<button id="barring_button" class="myButton" onclick='mouse_barring_mode()'>Barring mode (bar the cells that aren't available)</button>
 			<br>
-			<button class="myButton" onclick="solve()">Solve</button>
+			<button class="myButton" onclick="solve_wrapper()">Solve</button>
 			<br>
 			<button class="myButton" onclick="reset()">Reset</button>
 			<br>
@@ -173,6 +179,10 @@
 		return string[0].toUpperCase() + string.substring(1);
 	}
 
+	function communize(string) {
+		return string[0].toLowerCase() + string.substring(1);
+	}
+
 	function text_width(text, font) {
 		let text_canvas = document.createElement('canvas');
 		let text_ctx = text_canvas.getContext('2d');
@@ -186,7 +196,7 @@
 		'aer':'air',
 		'alienis':'eldritch',
 		'aqua':'water',
-		'arbor':'t r e e',
+		'arbor':'tree',
 		'auram':'aura',
 		'bestia':'beast',
 		'cognitio':'mind',
@@ -257,19 +267,29 @@
 		'matrix':'protection'
 		}
 
+	var all_aspect_flavor_dict = {};
+	for (let i = 0; i < keylen(aspect_flavor_dict); i++) {
+		all_aspect_flavor_dict[keyAtIndex(aspect_flavor_dict, i)] = elemAtIndex(aspect_flavor_dict, i);
+	}
+
 	var enabled_flavor_dict = {};
 	for (let i = 0; i < keylen(aspect_flavor_dict); i++) {
 		enabled_flavor_dict[keyAtIndex(aspect_flavor_dict, i)] = true;
 	}
 
-	function load_aspect_selector() {
+	function load_aspect_selector(set_def_aspect_set = true) {
 		let aspect_selector_gui = document.getElementById('aspect_selector_gui');
+		aspect_selector_gui.innerHTML = '';
 		for (let i = 0; i < keylen(aspect_flavor_dict); i++) {
 			let onload = '';
 			if (i == keylen(aspect_flavor_dict) - 1) {
-				onload = ' onload = "on_resize(); set_default_aspect_set();"';
+				onload = set_def_aspect_set ? ' onload = "on_resize(); set_default_aspect_set();"' : ' onload = "on_resize();"';
 			}
-			let child = '<div id="aspect_content_wrapper_' + i + '" class="aspect_content_wrapper"><img' + onload + ' id="aspect_image_' + i + '" src="./ressources/images/hq_images_white_all/' + keyAtIndex(aspect_flavor_dict, i) + '.png"><div class="aspect_text_wrapper" id="aspect_text_' + i + '" onclick = "toggle_availability(' + i + ')"><span id="text_' + i + '">' + capitalize(keyAtIndex(aspect_flavor_dict, i)) + '<br></span><span id="flavor_' + i + '">' + elemAtIndex(aspect_flavor_dict, i) + '</span></div></div>';
+			let style = '';
+			if (!enabled_flavor_dict[keyAtIndex(aspect_flavor_dict, i)]) {
+				style = ' style="filter: brightness(25%);"';
+			}
+			let child = '<div id="aspect_content_wrapper_' + i + '" class="aspect_content_wrapper"><img' + style + onload + ' id="aspect_image_' + i + '" src="./ressources/images/hq_images_white_all/' + keyAtIndex(aspect_flavor_dict, i) + '.png"><div class="aspect_text_wrapper" id="aspect_text_' + i + '" onclick = "toggle_availability(' + i + ')"><span id="text_' + i + '">' + capitalize(keyAtIndex(aspect_flavor_dict, i)) + '<br></span><span id="flavor_' + i + '">' + elemAtIndex(aspect_flavor_dict, i) + '</span></div></div>';
 			aspect_selector_gui.innerHTML += child;
 		}
 		
@@ -349,7 +369,7 @@
 			let text = document.getElementById('text_' + i);
 			let flavor = document.getElementById('flavor_' + i);
 			let image = document.getElementById('aspect_image_' + i);
-			flavor.style.fontSize = "1em";//document.getElementById("aspect_text_" + i).offsetWidth / flavor.offsetWidth * 20 + 'px';
+			flavor.style.fontSize = "0.7em";//document.getElementById("aspect_text_" + i).offsetWidth / flavor.offsetWidth * 20 + 'px';
 			text.style.fontSize = "1em";//document.getElementById("aspect_text_" + i).offsetWidth / text.offsetWidth * 30 + 'px';
 			//while (/*text_width(text.innerText, text.style.fontSize + ' Helvetica Neue, Helvetica')*/text.offsetWidth + image.offsetWidth > document.getElementById('aspect_content_wrapper_' + i).offsetWidth - 5 && text.style.fontSize != '0.1em') {
 			while (text.offsetWidth + image.offsetWidth > document.getElementById('aspect_content_wrapper_' + i).offsetWidth / 1.1 && text.style.fontSize != '0.1em') {
@@ -869,18 +889,22 @@
 	}
 
 	function toggle_availability(id) {
+		let aspect = communize(document.getElementById('text_' + id).innerText).replace(/(\r\n|\n|\r)/gm, "");
 		let found = false;
 		for (let i = 0; i < keylen(aspect_table); i++) {
-			if (keyAtIndex(aspect_table, i) == keyAtIndex(all_aspect_table, id)) {
+			//if (keyAtIndex(aspect_table, i) == keyAtIndex(all_aspect_table, id)) {
+			if (keyAtIndex(aspect_table, i) == aspect) {
 				found = true;
 			}
 		}
 		if (found) {
-			remove_from_aspect_table(keyAtIndex(all_aspect_table, id));
+			remove_from_aspect_table(aspect);
 			document.getElementById('aspect_image_' + id).style.filter = 'brightness(25%)';
+			enabled_flavor_dict[aspect] = false;
 		} else {
-			add_to_aspect_table(keyAtIndex(all_aspect_table, id));
+			add_to_aspect_table(aspect);
 			document.getElementById('aspect_image_' + id).style.filter = 'brightness(100%)';
+			enabled_flavor_dict[aspect] = true;
 		}
 	}
 
@@ -891,6 +915,7 @@
 			if (!default_aspects.includes(keyAtIndex(all_aspect_table, i))) {
 				remove_from_aspect_table(keyAtIndex(all_aspect_table, i));
 				document.getElementById('aspect_image_' + i).style.filter = 'brightness(25%)';
+				enabled_flavor_dict[keyAtIndex(all_aspect_table, i)] = false;
 			}
 		}
 	}
@@ -916,16 +941,42 @@
 				for (let j = 0; j < keylen(all_aspect_table); j++) {
 					if (keyAtIndex(all_aspect_table, j) == aspect_set[checkbox.value][i]) {
 						remove_from_aspect_table(aspect_set[checkbox.value][i]);
-						document.getElementById('aspect_image_' + indexOfElem(all_aspect_table, aspect_set[checkbox.value][i])).style.filter = 'brightness(25%)';
+						//document.getElementById('aspect_image_' + indexOfElem(all_aspect_table, aspect_set[checkbox.value][i])).style.filter = 'brightness(25%)';
+						enabled_flavor_dict[keyAtIndex(all_aspect_table, j)] = false;
 					}
 				}
 			}
 		} else {
 			for (var i = 0; i < aspect_set[checkbox.value].length; i++) {
 				add_to_aspect_table(aspect_set[checkbox.value][i]);
-				document.getElementById('aspect_image_' + indexOfElem(all_aspect_table, aspect_set[checkbox.value][i])).style.filter = 'brightness(100%)';
+				//document.getElementById('aspect_image_' + indexOfElem(all_aspect_table, aspect_set[checkbox.value][i])).style.filter = 'brightness(100%)';
+				enabled_flavor_dict[keyAtIndex(all_aspect_table, indexOfElem(all_aspect_table, aspect_set[checkbox.value][i]))] = true;
 			}
 		}
+		load_aspect_selector(false);
+	}
+
+	function search(box) {
+		let results_beginning = [];
+		let results_anywhere = [];
+		for (let i = 0; i < keylen(all_aspect_table); i++) {
+			if (keyAtIndex(all_aspect_table, i).startsWith(box.value)) {
+				results_beginning.push(keyAtIndex(all_aspect_table, i));
+			} else if (keyAtIndex(all_aspect_table, i).includes(box.value)) {
+				results_anywhere.push(keyAtIndex(all_aspect_table, i));
+			}
+		}
+		//console.log(results_beginning);
+		//console.log(results_anywhere);
+		let aspect_selector_gui = document.getElementById('aspect_selector_gui');
+		aspect_flavor_dict = {};
+		for (let i = 0; i < results_beginning.length; i++) {
+			aspect_flavor_dict[results_beginning[i]] = all_aspect_flavor_dict[results_beginning[i]];
+		}
+		for (let i = 0; i < results_anywhere.length; i++) {
+			aspect_flavor_dict[results_anywhere[i]] = all_aspect_flavor_dict[results_anywhere[i]];
+		}
+		load_aspect_selector(false);
 	}
 
 	/* Image cache (for debugging) */
@@ -1857,6 +1908,15 @@
 	var max_depth = 10000;
 	var current_path = null;
 
+	function solve_wrapper() {
+		let wait_text = document.getElementById('wait_solving');
+		wait_text.innerHTML = 'Please wait, solving...';
+		let br_node = document.createElement('br');
+		br_node.id = 'break';
+		wait_text.after(br_node);
+		setTimeout(function(){ solve(); }, 10);
+	}
+
 	function solve() {
 		current_state = new State(grid);
 		depth = 0;
@@ -1887,13 +1947,26 @@
 				main_loop();
 			}
 			draw_grid(grid);
-		}	
+		}
+		document.getElementById('wait_solving').innerHTML = '';
+		document.getElementById('break').remove()
 	}
 
 	function reset() {
 		grid = draw_initial_grid(parseInt(document.getElementById('grid_size_input').value));
 		current_state.grid = grid;
 		draw_grid(grid);
+		depth = 0;
+		state_history = [];
+		original_grid;
+		original_state;
+		returning_from_bad_state = false;
+		last_touched_cells = null;
+		chosen_cell = null;
+		considered_cells = null;
+		solved = false;
+		max_depth = 10000;
+		current_path = null;
 	}
 
 </script>
