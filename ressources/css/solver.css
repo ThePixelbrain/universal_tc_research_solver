@@ -113,3 +113,15 @@
 #canvas {
 	
 }
+
+@media only screen and (min-width: 800px) {
+  #canvas_selector_wrapper {
+     display: flex;
+  }
+}
+
+@media only screen and (max-width: 799px) {
+  #canvas {
+  	margin: 0 auto;
+  }
+}

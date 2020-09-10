@@ -14,64 +14,67 @@
 		<div class="article">
 			<h1>Thaumcraft 4 Research Solver</h1>
 			<br>
-			<canvas id='canvas' onclick="handle_click(event)"></canvas>
-			<br>
-			<h2 id="wait_solving"></h2>
-			<div id="aspect_selector_modpack_wrapper">
-				<div id="aspect_selector_gui"></div>
+			<div id="canvas_selector_wrapper">
+				<canvas id='canvas' onclick="handle_click(event)"></canvas>
 				<br>
-				<div id="search_wrapper">
-					<label for="search_box">Search: </label>
-					<input id="search_box" type="text" name="search box" oninput="search(this)">
-				</div>
-				<br>
-				<div id="modpack_selector">
-					<div class="input_wrapper" onclick="toggle_aspect_set(this)">
-						<input id="vanilla_checkbox" type="checkbox" name="Vanilla TC" value="vanilla_tc">
-						<label for="vanilla_checkbox">Vanilla TC</label>
+				<h2 id="wait_solving"></h2>
+				<div id="aspect_selector_modpack_wrapper">
+					<div id="aspect_selector_gui"></div>
+					<br>
+					<div id="search_wrapper">
+						<label for="search_box">Search: </label>
+						<input id="search_box" type="text" name="search box" oninput="search(this)">
 					</div>
-					<div class="input_wrapper" onclick="toggle_aspect_set(this)">
-						<input id="forbidden_magic_checkbox" type="checkbox" name="Forbidden Magic" value="forbidden_magic">
-						<label for="forbidden_magic_checkbox">Forbidden Magic</label>
-					</div>
-					<div class="input_wrapper" onclick="toggle_aspect_set(this)">
-						<input id="gregtech_checkbox" type="checkbox" name="Gregtech" value="gregtech">
-						<label for="gregtech_checkbox">Gregtech</label>
-					</div>
-					<div class="input_wrapper" onclick="toggle_aspect_set(this)">
-						<input id="magic_bees_checkbox" type="checkbox" name="Magic Bees" value="magic_bees">
-						<label for="magic_bees_checkbox">Magic Bees</label>
-					</div>
-					<div class="input_wrapper" onclick="toggle_aspect_set(this)">
-						<input id="avaritia_checkbox" type="checkbox" name="Avaritia" value="avaritia">
-						<label for="avaritia_checkbox">Avaritia</label>
-					</div>
-					<div class="input_wrapper" onclick="toggle_aspect_set(this)">
-						<input id="abyssal_checkbox" type="checkbox" name="AbyssalCraft" value="abyssal">
-						<label for="abyssal_checkbox">AbyssalCraft</label>
-					</div>
-					<div class="input_wrapper" onclick="toggle_aspect_set(this)">
-						<input id="botanical_checkbox" type="checkbox" name="Botanical Addons" value="botanical">
-						<label for="botanical_checkbox">Botanical Addons</label>
-					</div>
-					<div class="input_wrapper" onclick="toggle_aspect_set(this)">
-						<input id="elysium_checkbox" type="checkbox" name="The Elysium" value="elysium">
-						<label for="elysium_checkbox">The Elysium</label>
-					</div>
-					<div class="input_wrapper" onclick="toggle_aspect_set(this)">
-						<input id="revelations_checkbox" type="checkbox" name="Thaumic Revelations" value="revelations">
-						<label for="revelations_checkbox">Thaumic Revelations</label>
-					</div>
-					<div class="input_wrapper" onclick="toggle_aspect_set(this)">
-						<input id="additions_checkbox" type="checkbox" name="Thaumic Additions" value="additions">
-						<label for="additions_checkbox">Thaumic Additions</label>
-					</div>
-					<div class="input_wrapper" onclick="toggle_aspect_set(this)">
-						<input id="essential_checkbox" type="checkbox" name="Essential Thaumaturgy" value="essential">
-						<label for="essential_checkbox">Essential Thaumaturgy</label>
+					<br>
+					<div id="modpack_selector">
+						<div class="input_wrapper" onclick="toggle_aspect_set(this)">
+							<input id="vanilla_checkbox" type="checkbox" name="Vanilla TC" value="vanilla_tc">
+							<label for="vanilla_checkbox">Vanilla TC</label>
+						</div>
+						<div class="input_wrapper" onclick="toggle_aspect_set(this)">
+							<input id="forbidden_magic_checkbox" type="checkbox" name="Forbidden Magic" value="forbidden_magic">
+							<label for="forbidden_magic_checkbox">Forbidden Magic</label>
+						</div>
+						<div class="input_wrapper" onclick="toggle_aspect_set(this)">
+							<input id="gregtech_checkbox" type="checkbox" name="Gregtech" value="gregtech">
+							<label for="gregtech_checkbox">Gregtech</label>
+						</div>
+						<div class="input_wrapper" onclick="toggle_aspect_set(this)">
+							<input id="magic_bees_checkbox" type="checkbox" name="Magic Bees" value="magic_bees">
+							<label for="magic_bees_checkbox">Magic Bees</label>
+						</div>
+						<div class="input_wrapper" onclick="toggle_aspect_set(this)">
+							<input id="avaritia_checkbox" type="checkbox" name="Avaritia" value="avaritia">
+							<label for="avaritia_checkbox">Avaritia</label>
+						</div>
+						<div class="input_wrapper" onclick="toggle_aspect_set(this)">
+							<input id="abyssal_checkbox" type="checkbox" name="AbyssalCraft" value="abyssal">
+							<label for="abyssal_checkbox">AbyssalCraft</label>
+						</div>
+						<div class="input_wrapper" onclick="toggle_aspect_set(this)">
+							<input id="botanical_checkbox" type="checkbox" name="Botanical Addons" value="botanical">
+							<label for="botanical_checkbox">Botanical Addons</label>
+						</div>
+						<div class="input_wrapper" onclick="toggle_aspect_set(this)">
+							<input id="elysium_checkbox" type="checkbox" name="The Elysium" value="elysium">
+							<label for="elysium_checkbox">The Elysium</label>
+						</div>
+						<div class="input_wrapper" onclick="toggle_aspect_set(this)">
+							<input id="revelations_checkbox" type="checkbox" name="Thaumic Revelations" value="revelations">
+							<label for="revelations_checkbox">Thaumic Revelations</label>
+						</div>
+						<div class="input_wrapper" onclick="toggle_aspect_set(this)">
+							<input id="additions_checkbox" type="checkbox" name="Thaumic Additions" value="additions">
+							<label for="additions_checkbox">Thaumic Additions</label>
+						</div>
+						<div class="input_wrapper" onclick="toggle_aspect_set(this)">
+							<input id="essential_checkbox" type="checkbox" name="Essential Thaumaturgy" value="essential">
+							<label for="essential_checkbox">Essential Thaumaturgy</label>
+						</div>
 					</div>
 				</div>
 			</div>
+			
 			<br>
 			<button id="barring_button" class="myButton" onclick='mouse_barring_mode()'>Barring mode (bar the cells that aren't available)</button>
 			<br>
