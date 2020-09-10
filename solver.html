@@ -91,6 +91,7 @@
 			<h2>How do I use it?</h2>
 			<ul>
 				<li>Drag aspects on the grid to recreate a research note. Drag the images, not the box or text.</li>
+				<li>You can also select a cell and click an aspect image to set it as the cell aspect.</li>
 				<li>You can remove aspects from the grid by simply clicking on them.</li>
 				<li>Use the "Barring mode" button to remove any tiles that can not be used.</li>
 				<li>Toggle the availabilty of an aspect by clicking its text.</li>
@@ -364,6 +365,15 @@
 		}
 	});
 
+	document.addEventListener('mousedown', function(event) {
+		if (event.target.id.startsWith('aspect_image_') && selected_cell != null) {
+			//console.log(event.target);
+			let aspect = communize(document.getElementById('text_'+event.target.id.slice(13)).innerText).replace(/(\r\n|\n|\r)/gm, "");
+			//console.log(aspect)
+			selected_cell.aspect = aspect;
+		}
+	});
+
 	function on_resize() {
 		for (let i = 0; i < keylen(aspect_flavor_dict); i++) {
 			let text = document.getElementById('text_' + i);
@@ -516,9 +526,21 @@
 	}
 
 	/* Resizing the canvas 31.25 percent of screen width (400 px if the screen is 1280 px wide) */
-	var screen_percentage = 31.25;
-	canvas.height = screen.width / 100 * screen_percentage;
-	canvas.width = screen.width / 100 * screen_percentage;
+	//alert(screen.width);
+	//1536
+	//var screen_percentage = 31.25;
+	if (screen.width >= 1000) {
+		canvas.height = screen.width / 100 * 32;
+		canvas.width = screen.width / 100 * 32;
+	} else if (screen.width >= 500) {
+		canvas.height = screen.width / 100 * 50;
+		canvas.width = screen.width / 100 * 50;
+	} else if (screen.width < 500) {
+		canvas.height = screen.width;
+		canvas.width = screen.width
+		canvas.style.marginLeft = '-10px';
+	}
+	
 	
 	/* drawing default size hex grid. Regular hexagon, "size 4" */
 	/* the whole grid should always take the maximum space */
