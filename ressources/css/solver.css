@@ -130,5 +130,6 @@
   }
   #aspect_selector_gui {
   	width: 100%;
+  	height: 250px;
   }
 }
