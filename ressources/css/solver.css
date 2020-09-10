@@ -3,7 +3,8 @@
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-around;
-	height: 250px;
+	/*height: 250px;*/
+	/*height: auto;*/
 	overflow-y: scroll;
 	border: solid; padding-top: 10px;
 	flex-direction: row;
@@ -11,12 +12,13 @@
 
 .aspect_content_wrapper {
 	width: 10em;
-	height: 60px;
+	/*height: 60px;*/
+	height: auto;
 	border: solid;
-	border-color: black;
+	border-color: #3D3D3C;
 	display: flex;
 	align-items: flex-start;
-	margin-bottom: 3%;
+	margin-bottom: 1%;
 }
 
 .aspect_content_wrapper img {
@@ -93,8 +95,10 @@
 
 #aspect_selector_modpack_wrapper {
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: all;
 	flex-direction: column;
+	/*justify-content: center;*/
+	/*height: 500px;*/
 }
 
 #modpack_selector {
@@ -123,5 +127,8 @@
 @media only screen and (max-width: 799px) {
   #canvas {
   	margin: 0 auto;
+  }
+  #aspect_selector_gui {
+  	width: 100%;
   }
 }
