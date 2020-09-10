@@ -105,6 +105,15 @@
 			<p>Do it here: <a href="https://github.com/jackowski626/universal_tc_research_solver/issues" target="_blank">github.com/jackowski626/universal_tc_research_solver/issues</a></p>
 			<h2>What is your favorite part?</h2>
 			<p>Stardust Crusaders.</p>
+
+			<br>
+			<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+			<input type="hidden" name="cmd" value="_s-xclick" />
+			<input type="hidden" name="hosted_button_id" value="SJY37JP2UFB6S" />
+			<input type="image" src="https://www.paypalobjects.com/en_US/CH/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+			<img alt="" border="0" src="https://www.paypal.com/en_CH/i/scr/pixel.gif" width="1" height="1" />
+			</form>
+			<br>
 		</div>
 	</div>
 </body>
@@ -986,9 +995,9 @@
 		let results_beginning = [];
 		let results_anywhere = [];
 		for (let i = 0; i < keylen(all_aspect_table); i++) {
-			if (keyAtIndex(all_aspect_table, i).startsWith(box.value)) {
+			if (keyAtIndex(all_aspect_table, i).startsWith(box.value.toLowerCase())) {
 				results_beginning.push(keyAtIndex(all_aspect_table, i));
-			} else if (keyAtIndex(all_aspect_table, i).includes(box.value)) {
+			} else if (keyAtIndex(all_aspect_table, i).includes(box.value.toLowerCase())) {
 				results_anywhere.push(keyAtIndex(all_aspect_table, i));
 			}
 		}
