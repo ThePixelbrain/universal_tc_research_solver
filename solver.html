@@ -81,7 +81,7 @@
 			<br>
 			<button class="myButton" onclick="reset()">Reset</button>
 			<br>
-			<button class="myButton" onclick="preset(7)">Preset (demo)</button>
+			<button class="myButton" onclick="preset()">Preset (demo)</button>
 			<br><br>
 			<form onsubmit="return false;">
 				<label for="grid_size_input">Grid size: </label>
@@ -120,6 +120,7 @@
 
 <script>
 	var debugging = false;
+	var preset_num = 6;
 
 	var holding_aspect = false;
 	var held_aspect = 'none';
@@ -743,7 +744,8 @@
 		}
 	}
 
-	function preset(num) {
+	function preset() {
+		let num = preset_num;
 		/* base */
 		clear_grid(grid);
 		reset();
@@ -1213,14 +1215,14 @@
 	/* This function only considers cell neighbors that can be connected */
 	/* path takes blank cells into account */
 	/* ignore_aspects doesn't take cells with aspects into account except the starting one */
-	function neighbor_chain(x, y, grid, path = false, cell_list = null, ignore_aspects = false, current_path = []) {
+	function neighbor_chain(x, y, grid, path = false, cell_list = null, ignore_aspects = false, not_ignored_id = null, current_path = []) {
 		//console.log(`x: ${x}, y: ${y}, cell_list: ${cell_list}`);
 		let first_time = false;
 		if (cell_list == null) {
 			cell_list = [];
 			first_time = true;
 		}
-		if (((grid[x][y].aspect != 'none' || path) && (ignore_aspects ? (grid[x][y].aspect == 'none' || first_time) : true)) && !inArray(cell_list, [x, y]) && (current_path.length > 0 ? !current_path.includes(grid[x][y].id) : true)) {
+		if (((grid[x][y].aspect != 'none' || path) && (ignore_aspects ? (grid[x][y].aspect == 'none' || grid[x][y].id == not_ignored_id || first_time) : true)) && !inArray(cell_list, [x, y]) && (current_path.length > 0 ? !current_path.includes(grid[x][y].id) : true)) {
 			cell_list.push([x, y]);
 			var neighbors;
 			if (path) {
@@ -1231,7 +1233,7 @@
 			//console.log(`neighbors: ${neighbors}`);
 			for (let i = 0; i < neighbors.length; i++) {
 				//console.log(`i: ${i}, neighbor len: ${neighbors.length}`);
-				neighbor_chain(neighbors[i][0], neighbors[i][1], grid, path, cell_list, ignore_aspects, current_path);
+				neighbor_chain(neighbors[i][0], neighbors[i][1], grid, path, cell_list, ignore_aspects, not_ignored_id, current_path);
 			}
 		}
 		return cell_list;
@@ -1310,6 +1312,17 @@
 		return path.length - 1;
 	}
 
+	/* Checks if two cells are not separated by barred cells, optionnaly separated by aspects */
+	function in_same_space(id1, id2, grid, aspects = false, current_path = []) {
+		let cell1 = get_cell_by_id(id1, grid);
+		let cell2 = get_cell_by_id(id2, grid);
+		let temp_chain = neighbor_chain(cell1.array_x, cell1.array_y, grid, true, null, aspects, id2, current_path);
+		if (inArray(temp_chain, [cell2.array_x, cell2.array_y])) {
+			return true;
+		}
+		return false;
+	}
+
 	function closest_cells(state) {
 		/* basically take every cell and get all distances to all other cells */
 		/* uses precalculated values */
@@ -1347,7 +1360,7 @@
 									continue;
 								}
 							}
-							if (!in_neighbor_chain && state.grid[k][l].aspect != 'none' && !impossible_id(state.grid[k][l].id ,state)) {
+							if (!in_neighbor_chain && state.grid[k][l].aspect != 'none' && !impossible_id(state.grid[k][l].id ,state) && in_same_space(state.grid[i][j].id, state.grid[k][l].id, state.grid, true)) {
 								if (current_closest_pair.length == 0) {
 									current_closest_pair = [state.grid[i][j].id, state.grid[k][l].id];
 									if (state.current_path && sort_tuple(current_closest_pair, state.current_path)) {
@@ -1554,17 +1567,6 @@
 		state.impossible_closest_cells[id].push(aspect);
 		state.impossible_aspects_for_current_path[id].push(aspect);
 		state.impossible_aspects_for_current_path[id] = remove_dupes(state.impossible_aspects_for_current_path[id]);
-	}
-
-	/* Checks if two cells are not separated by barred cells, optionnaly separated by aspects */
-	function in_same_space(id1, id2, grid, aspects = false, current_path = []) {
-		let cell1 = get_cell_by_id(id1, grid);
-		let cell2 = get_cell_by_id(id2, grid);
-		let temp_chain = neighbor_chain(cell1.array_x, cell1.array_y, grid, true, null, aspects, current_path);
-		if (inArray(temp_chain, [cell2.array_x, cell2.array_y])) {
-			return true;
-		}
-		return false;
 	}
 
 	function arrays_equal(a, b) {
@@ -1821,11 +1823,10 @@
 		}
 	}
 
+	var debug_depth = 47;
+
 	function main_loop(){
-		if (depth == 22) {
-			console.log("debug");
-		}
-		if (depth == 469) {
+		if (depth == debug_depth) {
 			console.log("debug");
 		}
 		console.log(`entering depth ${depth}`);
